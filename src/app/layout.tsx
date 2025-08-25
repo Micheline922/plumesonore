@@ -26,12 +26,12 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body antialiased">
-        <UserGate>
-          <SidebarProvider>
+        <SidebarProvider>
+          <UserGate>
               <AppSidebar />
               <SidebarInset>{children}</SidebarInset>
-          </SidebarProvider>
-        </UserGate>
+          </UserGate>
+        </SidebarProvider>
         <Toaster />
       </body>
     </html>

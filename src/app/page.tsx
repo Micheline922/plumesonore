@@ -2,7 +2,6 @@ import Link from 'next/link';
 import { ArrowRight, GraduationCap, Lightbulb, Mic, NotebookPen, Sparkles, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { UserGate } from '@/components/app/user-gate';
 
 const featureCards = [
   {
@@ -51,7 +50,6 @@ const featureCards = [
 
 export default function DashboardPage() {
   return (
-    <UserGate>
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
         <div className="flex items-center">
           <div>
@@ -85,6 +83,5 @@ export default function DashboardPage() {
           ))}
         </div>
       </main>
-    </UserGate>
   );
 }

@@ -3,23 +3,23 @@
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useSidebar } from '@/components/ui/sidebar';
 
 export function UserGate({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [isVerified, setIsVerified] = useState(false);
+  const { setOpen } = useSidebar();
 
   useEffect(() => {
     const userData = localStorage.getItem('plume-sonore-user');
     if (!userData) {
-      // Allow access to the login page itself
       if (pathname !== '/login') {
         router.replace('/login');
       } else {
         setIsVerified(true);
       }
     } else {
-      // If user data exists, but they are on login, redirect them to home
       if (pathname === '/login') {
         router.replace('/');
       } else {
@@ -44,6 +44,13 @@ export function UserGate({ children }: { children: React.ReactNode }) {
         </main>
     )
   }
+
+  // Hide sidebar on login page
+  const hideSidebar = pathname === '/login';
+  useEffect(() => {
+    setOpen(!hideSidebar);
+  }, [hideSidebar, setOpen])
+
 
   return <>{children}</>;
 }

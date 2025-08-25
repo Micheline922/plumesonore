@@ -18,7 +18,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
 
 const menuItems = [
-  { href: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/', label: 'Tableau de bord', icon: LayoutDashboard },
   { href: '/writing-pad', label: "Atelier d'écriture", icon: NotebookPen },
   { href: '/my-creations', label: 'Mes Créations', icon: Library },
   { href: '/ai-tools', label: 'Assistant IA', icon: Sparkles },
