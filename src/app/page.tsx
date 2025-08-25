@@ -61,23 +61,25 @@ export default function DashboardPage() {
       </div>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {featureCards.map((feature) => (
-          <Card key={feature.href} className="flex flex-col">
-            <CardHeader>
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <feature.icon className="h-6 w-6" />
-              </div>
-              <CardTitle className="font-headline">{feature.title}</CardTitle>
-              <CardDescription>{feature.description}</CardDescription>
-            </CardHeader>
-            <CardContent className="mt-auto">
-              <Button asChild className="w-full">
-                <Link href={feature.href}>
-                  {feature.cta}
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
+          <Link key={feature.href} href={feature.href} prefetch={true} className="flex">
+            <Card className="flex flex-col w-full hover:border-primary transition-colors">
+              <CardHeader>
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                  <feature.icon className="h-6 w-6" />
+                </div>
+                <CardTitle className="font-headline">{feature.title}</CardTitle>
+                <CardDescription>{feature.description}</CardDescription>
+              </CardHeader>
+              <CardContent className="mt-auto">
+                <Button asChild className="w-full" tabIndex={-1}>
+                  <div>
+                    {feature.cta}
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </div>
+                </Button>
+              </CardContent>
+            </Card>
+          </Link>
         ))}
       </div>
     </main>
