@@ -1,18 +1,21 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { usePathname } from 'next/navigation';
-import { Feather, GraduationCap, LayoutDashboard, Lightbulb, Mic, NotebookPen, Sparkles, Users } from 'lucide-react';
+import { Feather, GraduationCap, LayoutDashboard, Lightbulb, Mic, NotebookPen, Sparkles, Users, LogOut } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
   SidebarHeader,
+  SidebarFooter,
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
   useSidebar,
 } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
+import { Button } from '../ui/button';
 
 const menuItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -27,6 +30,17 @@ const menuItems = [
 export function AppSidebar() {
   const pathname = usePathname();
   const { state } = useSidebar();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    localStorage.removeItem('plume-sonore-user');
+    router.push('/login');
+  };
+
+  // Do not render sidebar on the login page
+  if (pathname === '/login') {
+    return null;
+  }
 
   return (
     <Sidebar>
@@ -63,6 +77,19 @@ export function AppSidebar() {
           ))}
         </SidebarMenu>
       </SidebarContent>
+      <SidebarFooter>
+         <SidebarMenu>
+           <SidebarMenuItem>
+              <SidebarMenuButton
+                onClick={handleLogout}
+                tooltip={{ children: 'Se déconnecter', side: 'right', align: 'center' }}
+              >
+                <LogOut />
+                <span>Se déconnecter</span>
+              </SidebarMenuButton>
+           </SidebarMenuItem>
+         </SidebarMenu>
+      </SidebarFooter>
     </Sidebar>
   );
 }

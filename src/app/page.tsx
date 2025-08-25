@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ArrowRight, GraduationCap, Lightbulb, Mic, NotebookPen, Sparkles, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { UserGate } from '@/components/app/user-gate';
 
 const featureCards = [
   {
@@ -40,48 +41,50 @@ const featureCards = [
     cta: 'Monter sur scène',
   },
   {
-    title: 'Banque d\'Inspiration',
-    description: 'Citations, sons d\'ambiance et textes pour ne jamais être à court d\'idées.',
+    title: "Banque d'Inspiration",
+    description: "Citations, sons d'ambiance et textes pour ne jamais être à court d'idées.",
     href: '/inspiration',
     icon: Lightbulb,
-    cta: 'Trouver l\'inspiration',
+    cta: "Trouver l'inspiration",
   },
 ];
 
 export default function DashboardPage() {
   return (
-    <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-      <div className="flex items-center">
-        <div>
-          <h1 className="font-headline text-3xl font-bold tracking-tight">Bienvenue, Artiste !</h1>
-          <p className="text-muted-foreground mt-1">
-            Votre studio d'écriture vous attend. Que voulez-vous créer aujourd'hui ?
-          </p>
+    <UserGate>
+      <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+        <div className="flex items-center">
+          <div>
+            <h1 className="font-headline text-3xl font-bold tracking-tight">Bienvenue, Artiste !</h1>
+            <p className="text-muted-foreground mt-1">
+              Votre studio d'écriture vous attend. Que voulez-vous créer aujourd'hui ?
+            </p>
+          </div>
         </div>
-      </div>
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {featureCards.map((feature) => (
-          <Link key={feature.href} href={feature.href} prefetch={true} className="flex">
-            <Card className="flex flex-col w-full hover:border-primary transition-colors">
-              <CardHeader>
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                  <feature.icon className="h-6 w-6" />
-                </div>
-                <CardTitle className="font-headline">{feature.title}</CardTitle>
-                <CardDescription>{feature.description}</CardDescription>
-              </CardHeader>
-              <CardContent className="mt-auto">
-                <Button asChild className="w-full" tabIndex={-1}>
-                  <div>
-                    {feature.cta}
-                    <ArrowRight className="ml-2 h-4 w-4" />
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {featureCards.map((feature) => (
+            <Link key={feature.href} href={feature.href} prefetch={true} className="flex">
+              <Card className="flex flex-col w-full hover:border-primary transition-colors">
+                <CardHeader>
+                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                    <feature.icon className="h-6 w-6" />
                   </div>
-                </Button>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
-      </div>
-    </main>
+                  <CardTitle className="font-headline">{feature.title}</CardTitle>
+                  <CardDescription>{feature.description}</CardDescription>
+                </CardHeader>
+                <CardContent className="mt-auto">
+                  <Button asChild className="w-full" tabIndex={-1}>
+                    <div>
+                      {feature.cta}
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </div>
+                  </Button>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      </main>
+    </UserGate>
   );
 }
