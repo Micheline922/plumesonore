@@ -6,22 +6,20 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { communityPosts as initialPosts } from '@/lib/placeholder-data';
-import { Heart, MessageCircle, Send, Pencil, Mail, Loader2 } from 'lucide-react';
+import { Heart, MessageCircle, Send, Pencil, Mail, Loader2, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription
+} from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { generateChatResponse } from '@/ai/flows/generate-chat-response';
 
 
@@ -40,6 +38,15 @@ interface Post {
   commentsCount: number;
   comments: Comment[];
   liked?: boolean;
+}
+
+interface ChatMessage {
+  sender: 'user' | 'bot';
+  text: string;
+}
+
+interface ChatSession {
+  [artistName: string]: ChatMessage[];
 }
 
 function NewPostForm({ onAddPost, currentUser }: { onAddPost: (text: string) => void; currentUser: { artistName: string } }) {
@@ -88,84 +95,140 @@ function NewPostForm({ onAddPost, currentUser }: { onAddPost: (text: string) => 
 }
 
 function ContactDialog({ author, currentUser }: { author: string; currentUser: { artistName: string } }) {
-  const [message, setMessage] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [message, setMessage] = useState('');
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleContact = async () => {
-    if (!message.trim()) {
-      toast({
-        title: 'Message vide',
-        description: 'Veuillez écrire un message à envoyer.',
-        variant: 'destructive',
-      });
-      return;
+  useEffect(() => {
+    if (isOpen) {
+      const allChatsRaw = localStorage.getItem('plume-sonore-chats');
+      const allChats: ChatSession = allChatsRaw ? JSON.parse(allChatsRaw) : {};
+      setChatHistory(allChats[author] || []);
     }
+  }, [isOpen, author]);
 
+  const handleSendMessage = async () => {
+    if (!message.trim()) return;
+
+    const userMessage: ChatMessage = { sender: 'user', text: message };
+    const newChatHistory = [...chatHistory, userMessage];
+    setChatHistory(newChatHistory);
+    setMessage('');
     setIsLoading(true);
+
     try {
       const result = await generateChatResponse({
         senderName: currentUser.artistName,
         recipientName: author,
         message: message,
       });
-      
-      toast({
-        title: `Réponse de ${author}`,
-        description: result.response,
-        duration: 8000,
-      });
+
+      const botMessage: ChatMessage = { sender: 'bot', text: result.response };
+      const finalChatHistory = [...newChatHistory, botMessage];
+      setChatHistory(finalChatHistory);
+
+      // Save to localStorage
+      const allChatsRaw = localStorage.getItem('plume-sonore-chats');
+      const allChats: ChatSession = allChatsRaw ? JSON.parse(allChatsRaw) : {};
+      allChats[author] = finalChatHistory;
+      localStorage.setItem('plume-sonore-chats', JSON.stringify(allChats));
 
     } catch (error) {
       console.error(error);
       toast({
         title: 'Erreur',
-        description: "Impossible d'envoyer le message pour le moment.",
+        description: "L'IA n'a pas pu répondre. Réessayez plus tard.",
         variant: 'destructive',
       });
+       const historyWithoutUserMessage = newChatHistory.slice(0, -1);
+       setChatHistory(historyWithoutUserMessage);
     } finally {
       setIsLoading(false);
-      setMessage('');
-      setIsOpen(false);
     }
   };
 
+
   return (
-    <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
-      <AlertDialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-5 w-5 text-muted-foreground">
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+       <Button variant="ghost" size="icon" className="h-5 w-5 text-muted-foreground" onClick={() => setIsOpen(true)}>
           <Mail className="h-3 w-3" />
         </Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Contacter {author}</AlertDialogTitle>
-          <AlertDialogDescription>
-            Écrivez votre message ci-dessous. L'artiste (virtuel) vous répondra sous peu.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <Textarea
-          placeholder={`Votre message pour ${author}...`}
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          disabled={isLoading}
-        />
-        <AlertDialogFooter>
-          <AlertDialogCancel>Annuler</AlertDialogCancel>
-          <AlertDialogAction onClick={handleContact} disabled={isLoading}>
-            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
-            Envoyer
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Conversation avec {author}</DialogTitle>
+          <DialogDescription>
+            Ceci est une conversation simulée par une IA.
+          </DialogDescription>
+        </DialogHeader>
+        <ScrollArea className="h-[300px] w-full rounded-md border p-4">
+          <div className="space-y-4">
+            {chatHistory.length === 0 && <p className="text-sm text-center text-muted-foreground py-8">Envoyez le premier message.</p>}
+            {chatHistory.map((chat, index) => (
+              <div
+                key={index}
+                className={cn(
+                  'flex items-end gap-2',
+                  chat.sender === 'user' ? 'justify-end' : 'justify-start'
+                )}
+              >
+                {chat.sender === 'bot' && (
+                   <Avatar className="h-8 w-8">
+                     <AvatarFallback>{author.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                )}
+                <div
+                  className={cn(
+                    'max-w-[75%] rounded-lg p-3 text-sm',
+                    chat.sender === 'user'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted'
+                  )}
+                >
+                  {chat.text}
+                </div>
+                 {chat.sender === 'user' && (
+                   <Avatar className="h-8 w-8">
+                     <AvatarFallback>{currentUser.artistName.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                )}
+              </div>
+            ))}
+             {isLoading && (
+              <div className="flex items-end gap-2 justify-start">
+                  <Avatar className="h-8 w-8">
+                      <AvatarFallback>{author.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <div className="bg-muted p-3 rounded-lg">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                  </div>
+              </div>
+            )}
+          </div>
+        </ScrollArea>
+        <DialogFooter>
+          <div className="flex items-center w-full space-x-2">
+            <Input
+              placeholder="Écrivez votre message..."
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && !isLoading && handleSendMessage()}
+              disabled={isLoading}
+            />
+            <Button onClick={handleSendMessage} disabled={isLoading}>
+              <Send className="h-4 w-4" />
+            </Button>
+          </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
 
 export default function CommunityPage() {
-  const [posts, setPosts] = useState<Post[]>(initialPosts);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [activeCommentSection, setActiveCommentSection] = useState<number | null>(null);
   const [commentText, setCommentText] = useState('');
   const [currentUser, setCurrentUser] = useState({ artistName: 'Artiste Anonyme' });
@@ -175,11 +238,18 @@ export default function CommunityPage() {
     if (user) {
       setCurrentUser(JSON.parse(user));
     }
+
+    const storedPosts = localStorage.getItem('plume-sonore-posts');
+    setPosts(storedPosts ? JSON.parse(storedPosts) : initialPosts);
   }, []);
 
+  const updatePosts = (newPosts: Post[]) => {
+    setPosts(newPosts);
+    localStorage.setItem('plume-sonore-posts', JSON.stringify(newPosts));
+  }
+
   const toggleLike = (id: number) => {
-    setPosts(
-      posts.map((post) => {
+    const newPosts = posts.map((post) => {
         if (post.id === id) {
           return {
             ...post,
@@ -188,8 +258,8 @@ export default function CommunityPage() {
           };
         }
         return post;
-      })
-    );
+      });
+    updatePosts(newPosts);
   };
 
   const handleCommentToggle = (id: number) => {
@@ -203,8 +273,7 @@ export default function CommunityPage() {
   const handleAddComment = (id: number) => {
     if (!commentText.trim()) return;
 
-    setPosts(
-      posts.map((post) => {
+    const newPosts = posts.map((post) => {
         if (post.id === id) {
           const newComment = {
             author: currentUser.artistName,
@@ -217,8 +286,8 @@ export default function CommunityPage() {
           };
         }
         return post;
-      })
-    );
+      });
+    updatePosts(newPosts);
     setCommentText('');
   };
 
@@ -234,7 +303,7 @@ export default function CommunityPage() {
       comments: [],
       liked: false,
     };
-    setPosts([newPost, ...posts]);
+    updatePosts([newPost, ...posts]);
   };
   
   return (
@@ -259,7 +328,7 @@ export default function CommunityPage() {
               <div className="grid gap-1">
                 <div className="flex items-center gap-2">
                   <p className="text-sm font-semibold leading-none">{post.author}</p>
-                   <ContactDialog author={post.author} currentUser={currentUser} />
+                  {post.author !== currentUser.artistName && <ContactDialog author={post.author} currentUser={currentUser} />}
                 </div>
                 <p className="text-sm text-muted-foreground">{post.time}</p>
               </div>
