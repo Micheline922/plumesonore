@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { inspirationQuotes, inspirationSounds, inspirationTexts, inspirationInstrumentals } from '@/lib/placeholder-data';
@@ -114,19 +114,43 @@ function InspirationGenerator() {
 
 
 export default function InspirationPage() {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [activeMedia, setActiveMedia] = useState<{src: string, title: string} | null>(null);
-  const audioRef = useRef<HTMLAudioElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  useEffect(() => {
+    // Create the audio element only once on the client
+    if (!audioRef.current) {
+      audioRef.current = new Audio();
+      audioRef.current.addEventListener('ended', () => {
+        setIsPlaying(false);
+      });
+      audioRef.current.addEventListener('pause', () => {
+        setIsPlaying(false);
+      });
+      audioRef.current.addEventListener('play', () => {
+        setIsPlaying(true);
+      });
+    }
+    
+    // Cleanup function to pause and remove event listeners
+    return () => {
+        if(audioRef.current){
+            audioRef.current.pause();
+            // No need to remove listeners if audio element persists for component lifetime
+        }
+    }
+  }, []);
 
   const toggleMedia = (src: string, title: string) => {
-    if (activeMedia?.title === title && audioRef.current) {
+    if (activeMedia?.src === src && audioRef.current) {
       if (audioRef.current.paused) {
         audioRef.current.play();
-        setActiveMedia({src, title});
       } else {
         audioRef.current.pause();
       }
     } else {
-      setActiveMedia({src, title});
+      setActiveMedia({ src, title });
       if (audioRef.current) {
         audioRef.current.src = src;
         audioRef.current.play();
@@ -134,19 +158,6 @@ export default function InspirationPage() {
     }
   };
 
-  const isPlaying = (title: string) => {
-    return activeMedia?.title === title && audioRef.current && !audioRef.current.paused;
-  };
-  
-  const onEnded = () => {
-    const currentTitle = activeMedia?.title;
-    if(audioRef.current){
-        audioRef.current.currentTime = 0;
-    }
-    // We need to keep the activeMedia to show the play icon again
-    // but reflect that it's not playing. A simple state update will do.
-    setActiveMedia(activeMedia ? {...activeMedia} : null);
-  }
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
@@ -186,7 +197,10 @@ export default function InspirationPage() {
         </TabsContent>
         <TabsContent value="sounds">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {inspirationSounds.map((sound) => (
+            {inspirationSounds.map((sound) => {
+              const isActive = activeMedia?.title === sound.title;
+              const isCurrentlyPlaying = isActive && isPlaying;
+              return (
               <Card
                 key={sound.title}
                 className="cursor-pointer hover:border-primary transition-colors"
@@ -201,12 +215,12 @@ export default function InspirationPage() {
                     className="rounded-t-lg object-cover aspect-video"
                     data-ai-hint={sound.hint}
                   />
-                   {isPlaying(sound.title) && (
+                   {isCurrentlyPlaying && (
                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-t-lg">
                       <Pause className="h-12 w-12 text-white" />
                     </div>
                   )}
-                  {!isPlaying(sound.title) && activeMedia?.title === sound.title && (
+                  {isActive && !isCurrentlyPlaying && (
                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-t-lg">
                         <Play className="h-12 w-12 text-white" />
                     </div>
@@ -216,20 +230,22 @@ export default function InspirationPage() {
                   <CardTitle className="font-headline text-lg">{sound.title}</CardTitle>
                 </CardContent>
                 <CardFooter className="flex justify-between items-center text-sm text-muted-foreground">
-                   <audio ref={audioRef} onEnded={onEnded} />
                   <div className="flex items-center gap-2">
-                    {isPlaying(sound.title) ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                    <span>{isPlaying(sound.title) ? 'En cours' : 'Écouter'}</span>
+                    {isCurrentlyPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                    <span>{isCurrentlyPlaying ? 'En cours' : 'Écouter'}</span>
                   </div>
                   <span>{sound.duration}</span>
                 </CardFooter>
               </Card>
-            ))}
+            )})}
           </div>
         </TabsContent>
          <TabsContent value="instrumentals">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {inspirationInstrumentals.map((instrumental) => (
+            {inspirationInstrumentals.map((instrumental) => {
+               const isActive = activeMedia?.title === instrumental.title;
+               const isCurrentlyPlaying = isActive && isPlaying;
+              return (
               <Card
                 key={instrumental.title}
                 className="cursor-pointer hover:border-primary transition-colors flex flex-col"
@@ -244,12 +260,12 @@ export default function InspirationPage() {
                     className="rounded-t-lg object-cover aspect-video"
                     data-ai-hint={instrumental.hint}
                   />
-                   {isPlaying(instrumental.title) && (
+                   {isCurrentlyPlaying && (
                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-t-lg">
                       <Pause className="h-12 w-12 text-white" />
                     </div>
                   )}
-                  {!isPlaying(instrumental.title) && activeMedia?.title === instrumental.title && (
+                  {isActive && !isCurrentlyPlaying && (
                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-t-lg">
                         <Play className="h-12 w-12 text-white" />
                     </div>
@@ -260,13 +276,13 @@ export default function InspirationPage() {
                 </CardContent>
                 <CardFooter className="flex justify-between items-center text-sm text-muted-foreground">
                   <div className="flex items-center gap-2">
-                    {isPlaying(instrumental.title) ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                    <span>{isPlaying(instrumental.title) ? 'En cours' : 'Écouter'}</span>
+                    {isCurrentlyPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                    <span>{isCurrentlyPlaying ? 'En cours' : 'Écouter'}</span>
                   </div>
                   <span>{instrumental.duration}</span>
                 </CardFooter>
               </Card>
-            ))}
+            )})}
           </div>
         </TabsContent>
         <TabsContent value="texts">

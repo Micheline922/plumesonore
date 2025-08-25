@@ -69,7 +69,7 @@ export default function CommunityPage() {
                 className="flex items-center gap-2"
                 onClick={() => toggleLike(index)}
               >
-                <Heart className={cn('h-4 w-4', post.liked && 'fill-red-500 text-red-500')} />
+                <Heart className={cn('h-4 w-4', post.liked && 'fill-destructive text-destructive')} />
                 <span>{post.likes}</span>
               </Button>
               <Button variant="ghost" size="sm" className="flex items-center gap-2">
