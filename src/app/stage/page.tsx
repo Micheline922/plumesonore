@@ -65,6 +65,7 @@ export default function StagePage() {
         clearInterval(timerRef.current);
       }
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stage]);
 
   const requestMicPermission = async () => {
@@ -200,10 +201,10 @@ export default function StagePage() {
               </div>
             )}
             <div className="flex gap-4">
-                 <Button size="lg" className="w-full" onClick={handleReset}>
+                <Button size="lg" variant="outline" className="w-full" onClick={handleReset}>
                     Recommencer
                 </Button>
-                <Button size="lg" variant="outline" className="w-full" onClick={() => setIsSaveAlertOpen(true)}>
+                 <Button size="lg" className="w-full" onClick={() => setIsSaveAlertOpen(true)}>
                     <Save className="mr-2 h-5 w-5" />
                     Sauvegarder
                 </Button>
