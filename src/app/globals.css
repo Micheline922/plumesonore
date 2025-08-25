@@ -4,66 +4,66 @@
 
 @layer base {
   :root {
-    --background: 283 50% 97%;
-    --foreground: 283 20% 15%;
-    --card: 283 40% 93%;
-    --card-foreground: 283 20% 15%;
-    --popover: 283 50% 97%;
-    --popover-foreground: 283 20% 15%;
-    --primary: 283 44% 53%;
+    --background: 25 33% 96%; /* Warm off-white */
+    --foreground: 25 10% 10%; /* Dark, near-black */
+    --card: 25 40% 93%; /* Slightly darker warm off-white */
+    --card-foreground: 25 10% 10%;
+    --popover: 25 33% 96%;
+    --popover-foreground: 25 10% 10%;
+    --primary: 265 35% 45%; /* Deep Indigo */
     --primary-foreground: 0 0% 100%;
-    --secondary: 283 33% 88%;
-    --secondary-foreground: 283 20% 15%;
-    --muted: 283 33% 91%;
-    --muted-foreground: 283 15% 45%;
-    --accent: 163 44% 53%;
-    --accent-foreground: 163 30% 15%;
+    --secondary: 25 20% 88%; /* Light earthy tone */
+    --secondary-foreground: 25 10% 10%;
+    --muted: 25 20% 91%;
+    --muted-foreground: 25 15% 45%;
+    --accent: 25 80% 55%; /* Vibrant Orange */
+    --accent-foreground: 25 10% 10%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 283 20% 85%;
-    --input: 283 20% 89%;
-    --ring: 283 44% 53%;
+    --border: 25 20% 85%;
+    --input: 25 20% 89%;
+    --ring: 25 80% 55%; /* Vibrant Orange for rings */
     --radius: 0.5rem;
 
-    --sidebar-background: 283 30% 90%;
-    --sidebar-foreground: 283 20% 20%;
-    --sidebar-primary: 283 44% 53%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 283 40% 85%;
-    --sidebar-accent-foreground: 283 20% 15%;
-    --sidebar-border: 283 20% 80%;
-    --sidebar-ring: 283 44% 53%;
+    --sidebar-background: 265 25% 15%; /* Dark Indigo for sidebar */
+    --sidebar-foreground: 265 10% 95%;
+    --sidebar-primary: 25 75% 65%; /* Lighter vibrant orange for sidebar primary */
+    --sidebar-primary-foreground: 25 10% 10%;
+    --sidebar-accent: 265 30% 25%; /* Darker Indigo for accent */
+    --sidebar-accent-foreground: 265 10% 95%;
+    --sidebar-border: 265 20% 20%;
+    --sidebar-ring: 25 80% 55%;
   }
 
   .dark {
-    --background: 283 10% 12%;
-    --foreground: 283 10% 95%;
-    --card: 283 10% 18%;
-    --card-foreground: 283 10% 95%;
-    --popover: 283 10% 12%;
-    --popover-foreground: 283 10% 95%;
-    --primary: 283 44% 63%;
-    --primary-foreground: 283 10% 10%;
-    --secondary: 283 10% 22%;
-    --secondary-foreground: 283 10% 95%;
-    --muted: 283 10% 22%;
-    --muted-foreground: 283 10% 65%;
-    --accent: 163 44% 63%;
-    --accent-foreground: 163 10% 10%;
+    --background: 265 15% 12%; /* Deep, dark Indigo */
+    --foreground: 25 20% 95%;
+    --card: 265 15% 18%;
+    --card-foreground: 25 20% 95%;
+    --popover: 265 15% 12%;
+    --popover-foreground: 25 20% 95%;
+    --primary: 25 75% 65%; /* Vibrant Orange for primary in dark mode */
+    --primary-foreground: 25 10% 10%;
+    --secondary: 265 15% 22%;
+    --secondary-foreground: 25 20% 95%;
+    --muted: 265 15% 22%;
+    --muted-foreground: 25 20% 65%;
+    --accent: 25 80% 60%;
+    --accent-foreground: 25 10% 10%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 283 10% 28%;
-    --input: 283 10% 28%;
-    --ring: 283 44% 63%;
+    --border: 265 15% 28%;
+    --input: 265 15% 28%;
+    --ring: 25 80% 60%;
 
-    --sidebar-background: 283 10% 15%;
-    --sidebar-foreground: 283 10% 95%;
-    --sidebar-primary: 283 44% 63%;
-    --sidebar-primary-foreground: 283 10% 10%;
-    --sidebar-accent: 283 10% 25%;
-    --sidebar-accent-foreground: 283 10% 95%;
-    --sidebar-border: 283 10% 25%;
-    --sidebar-ring: 283 44% 63%;
+    --sidebar-background: 265 15% 10%; /* Even darker sidebar */
+    --sidebar-foreground: 25 20% 95%;
+    --sidebar-primary: 25 75% 65%;
+    --sidebar-primary-foreground: 25 10% 10%;
+    --sidebar-accent: 265 15% 25%;
+    --sidebar-accent-foreground: 25 20% 95%;
+    --sidebar-border: 265 15% 25%;
+    --sidebar-ring: 25 80% 60%;
   }
 }
 
