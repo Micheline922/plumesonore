@@ -14,6 +14,7 @@ import {z} from 'genkit';
 
 const GenerateRhymesInputSchema = z.object({
   wordOrPhrase: z.string().describe('The word or phrase to generate rhymes for.'),
+  language: z.enum(['french', 'english']).default('french').describe('The language for the rhymes.'),
 });
 export type GenerateRhymesInput = z.infer<typeof GenerateRhymesInputSchema>;
 
@@ -31,7 +32,7 @@ const prompt = ai.definePrompt({
   input: {schema: GenerateRhymesInputSchema},
   output: {schema: GenerateRhymesOutputSchema},
   model: 'googleai/gemini-1.5-flash-latest',
-  prompt: `You are a rhyming dictionary. Generate a list of rhymes for the following word or phrase:
+  prompt: `You are a rhyming dictionary. Generate a list of rhymes for the following word or phrase in {{language}}:
 
 {{wordOrPhrase}}
 

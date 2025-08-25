@@ -13,6 +13,7 @@ import {z} from 'genkit';
 const GetFeedbackOnTextInputSchema = z.object({
   text: z.string().describe('The text to get feedback on.'),
   writingStyle: z.enum(['poetry', 'slam', 'rap']).describe('The writing style of the text.'),
+  language: z.enum(['french', 'english']).default('french').describe('The language for the feedback.'),
 });
 export type GetFeedbackOnTextInput = z.infer<typeof GetFeedbackOnTextInputSchema>;
 
@@ -31,14 +32,14 @@ const prompt = ai.definePrompt({
   input: {schema: GetFeedbackOnTextInputSchema},
   output: {schema: GetFeedbackOnTextOutputSchema},
   model: 'googleai/gemini-1.5-flash-latest',
-  prompt: `You are an AI assistant designed to provide feedback and suggestions for improving creative writing.
+  prompt: `You are an AI assistant designed to provide feedback and suggestions for improving creative writing in {{language}}.
 
 You will receive a text written in a specific style (poetry, slam, or rap) and you will provide feedback focusing on rhyme, rhythm, and stylistic devices.
 
 Text Style: {{{writingStyle}}}
 Text: {{{text}}}
 
-Provide detailed feedback and actionable suggestions for improvement in the output.
+Provide detailed feedback and actionable suggestions for improvement in the output, in {{language}}.
 `,
 });
 

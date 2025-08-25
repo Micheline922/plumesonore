@@ -8,9 +8,13 @@ import { Label } from '@/components/ui/label';
 import { generateRhymes, type GenerateRhymesOutput } from '@/ai/flows/generate-rhymes';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Wand2 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+type Language = 'french' | 'english';
 
 export function RhymeGenerator() {
   const [word, setWord] = useState('');
+  const [language, setLanguage] = useState<Language>('french');
   const [result, setResult] = useState<GenerateRhymesOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -28,7 +32,7 @@ export function RhymeGenerator() {
     setIsLoading(true);
     setResult(null);
     try {
-      const rhymes = await generateRhymes({ wordOrPhrase: word });
+      const rhymes = await generateRhymes({ wordOrPhrase: word, language });
       setResult(rhymes);
     } catch (error) {
       console.error(error);
@@ -52,15 +56,33 @@ export function RhymeGenerator() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="word">Mot ou phrase</Label>
-            <Input
-              id="word"
-              placeholder="Ex: inspiration"
-              value={word}
-              onChange={(e) => setWord(e.target.value)}
-              disabled={isLoading}
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+            <div className="sm:col-span-3 space-y-2">
+              <Label htmlFor="word">Mot ou phrase</Label>
+              <Input
+                id="word"
+                placeholder="Ex: inspiration"
+                value={word}
+                onChange={(e) => setWord(e.target.value)}
+                disabled={isLoading}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="language">Langue</Label>
+              <Select
+                value={language}
+                onValueChange={(v) => setLanguage(v as Language)}
+                disabled={isLoading}
+              >
+                <SelectTrigger id="language">
+                  <SelectValue placeholder="Langue" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="french">Français</SelectItem>
+                  <SelectItem value="english">Anglais</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           {isLoading && (
             <div className="flex items-center justify-center p-8">

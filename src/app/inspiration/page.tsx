@@ -11,9 +11,13 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { generateInspiration, GenerateInspirationOutput } from '@/ai/flows/generate-inspiration';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+type Language = 'french' | 'english';
 
 function InspirationGenerator() {
   const [word, setWord] = useState('');
+  const [language, setLanguage] = useState<Language>('french');
   const [result, setResult] = useState<GenerateInspirationOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -31,7 +35,7 @@ function InspirationGenerator() {
     setIsLoading(true);
     setResult(null);
     try {
-      const inspiration = await generateInspiration({ word });
+      const inspiration = await generateInspiration({ word, language });
       setResult(inspiration);
     } catch (error) {
       console.error(error);
@@ -53,15 +57,33 @@ function InspirationGenerator() {
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="word">Votre mot</Label>
-            <Input
-              id="word"
-              placeholder="Ex: Éphémère, Silence, Chaos..."
-              value={word}
-              onChange={(e) => setWord(e.target.value)}
-              disabled={isLoading}
-            />
+          <div className="flex flex-col sm:flex-row sm:gap-4 space-y-4 sm:space-y-0">
+            <div className="space-y-2 flex-grow">
+              <Label htmlFor="word">Votre mot</Label>
+              <Input
+                id="word"
+                placeholder="Ex: Éphémère, Silence, Chaos..."
+                value={word}
+                onChange={(e) => setWord(e.target.value)}
+                disabled={isLoading}
+              />
+            </div>
+             <div className="space-y-2">
+              <Label htmlFor="language">Langue</Label>
+              <Select
+                value={language}
+                onValueChange={(v) => setLanguage(v as Language)}
+                disabled={isLoading}
+              >
+                <SelectTrigger id="language" className="w-full sm:w-[180px]">
+                  <SelectValue placeholder="Langue" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="french">Français</SelectItem>
+                  <SelectItem value="english">Anglais</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           {isLoading && (
             <div className="flex items-center justify-center p-8">

@@ -10,9 +10,11 @@ import { useToast } from '@/hooks/use-toast';
 import { Lightbulb, Loader2 } from 'lucide-react';
 
 type Genre = 'poetry' | 'slam' | 'rap';
+type Language = 'french' | 'english';
 
 export function PromptGenerator() {
   const [genre, setGenre] = useState<Genre>('poetry');
+  const [language, setLanguage] = useState<Language>('french');
   const [result, setResult] = useState<GenerateWritingPromptsOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -22,7 +24,7 @@ export function PromptGenerator() {
     setIsLoading(true);
     setResult(null);
     try {
-      const prompts = await generateWritingPrompts({ genre, count: 3 });
+      const prompts = await generateWritingPrompts({ genre, count: 3, language });
       setResult(prompts);
     } catch (error) {
       console.error(error);
@@ -46,22 +48,40 @@ export function PromptGenerator() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="genre">Genre</Label>
-            <Select
-              value={genre}
-              onValueChange={(v) => setGenre(v as Genre)}
-              disabled={isLoading}
-            >
-              <SelectTrigger id="genre" className="w-full sm:w-[280px]">
-                <SelectValue placeholder="Genre" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="poetry">Poésie</SelectItem>
-                <SelectItem value="slam">Slam</SelectItem>
-                <SelectItem value="rap">Rap</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="flex flex-col sm:flex-row sm:gap-4 space-y-4 sm:space-y-0">
+            <div className="space-y-2 flex-1">
+              <Label htmlFor="genre">Genre</Label>
+              <Select
+                value={genre}
+                onValueChange={(v) => setGenre(v as Genre)}
+                disabled={isLoading}
+              >
+                <SelectTrigger id="genre">
+                  <SelectValue placeholder="Genre" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="poetry">Poésie</SelectItem>
+                  <SelectItem value="slam">Slam</SelectItem>
+                  <SelectItem value="rap">Rap</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2 flex-1">
+               <Label htmlFor="language">Langue</Label>
+                <Select
+                  value={language}
+                  onValueChange={(v) => setLanguage(v as Language)}
+                  disabled={isLoading}
+                >
+                  <SelectTrigger id="language">
+                    <SelectValue placeholder="Langue" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="french">Français</SelectItem>
+                    <SelectItem value="english">Anglais</SelectItem>
+                  </SelectContent>
+                </Select>
+            </div>
           </div>
           {isLoading && (
             <div className="flex items-center justify-center p-8">

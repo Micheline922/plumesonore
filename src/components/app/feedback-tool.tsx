@@ -12,10 +12,12 @@ import { Loader2, Sparkles } from 'lucide-react';
 import { Separator } from '../ui/separator';
 
 type WritingStyle = 'poetry' | 'slam' | 'rap';
+type Language = 'french' | 'english';
 
 export function FeedbackTool() {
   const [text, setText] = useState('');
   const [writingStyle, setWritingStyle] = useState<WritingStyle>('poetry');
+  const [language, setLanguage] = useState<Language>('french');
   const [result, setResult] = useState<GetFeedbackOnTextOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -33,7 +35,7 @@ export function FeedbackTool() {
     setIsLoading(true);
     setResult(null);
     try {
-      const feedback = await getFeedbackOnText({ text, writingStyle });
+      const feedback = await getFeedbackOnText({ text, writingStyle, language });
       setResult(feedback);
     } catch (error) {
       console.error(error);
@@ -69,22 +71,40 @@ export function FeedbackTool() {
                 disabled={isLoading}
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="writing-style">Style d'écriture</Label>
-              <Select
-                value={writingStyle}
-                onValueChange={(v) => setWritingStyle(v as WritingStyle)}
-                disabled={isLoading}
-              >
-                <SelectTrigger id="writing-style">
-                  <SelectValue placeholder="Style" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="poetry">Poésie</SelectItem>
-                  <SelectItem value="slam">Slam</SelectItem>
-                  <SelectItem value="rap">Rap</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="writing-style">Style d'écriture</Label>
+                <Select
+                  value={writingStyle}
+                  onValueChange={(v) => setWritingStyle(v as WritingStyle)}
+                  disabled={isLoading}
+                >
+                  <SelectTrigger id="writing-style">
+                    <SelectValue placeholder="Style" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="poetry">Poésie</SelectItem>
+                    <SelectItem value="slam">Slam</SelectItem>
+                    <SelectItem value="rap">Rap</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+               <div className="space-y-2">
+                <Label htmlFor="language">Langue du feedback</Label>
+                <Select
+                  value={language}
+                  onValueChange={(v) => setLanguage(v as Language)}
+                  disabled={isLoading}
+                >
+                  <SelectTrigger id="language">
+                    <SelectValue placeholder="Langue" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="french">Français</SelectItem>
+                    <SelectItem value="english">Anglais</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
           {isLoading && (

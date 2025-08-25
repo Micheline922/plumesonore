@@ -12,6 +12,7 @@ import {z} from 'genkit';
 
 const GenerateInspirationInputSchema = z.object({
   word: z.string().describe('The word to generate inspiration from.'),
+  language: z.enum(['french', 'english']).default('french').describe('The language for the inspiration.'),
 });
 export type GenerateInspirationInput = z.infer<typeof GenerateInspirationInputSchema>;
 
@@ -36,7 +37,7 @@ const prompt = ai.definePrompt({
   model: 'googleai/gemini-1.5-flash-latest',
   prompt: `You are Plume Sonore, a creative and inspiring muse for poets, slammers, and rappers.
 A user has provided a single word: "{{word}}".
-Your task is to expand on this word to generate at least five distinct paragraphs of inspirational text. Each paragraph should explore a different facet, metaphor, or story related to the word, providing rich imagery and ideas to spark creativity.
+Your task is to expand on this word to generate at least five distinct paragraphs of inspirational text, in {{language}}. Each paragraph should explore a different facet, metaphor, or story related to the word, providing rich imagery and ideas to spark creativity.
 The tone should be evocative, poetic, and encouraging.
 Return the paragraphs as a JSON array.`,
 });

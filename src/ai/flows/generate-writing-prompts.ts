@@ -20,6 +20,7 @@ const GenerateWritingPromptsInputSchema = z.object({
     .max(5)
     .default(3)
     .describe('The number of writing prompts to generate.'),
+  language: z.enum(['french', 'english']).default('french').describe('The language for the prompts.'),
 });
 export type GenerateWritingPromptsInput = z.infer<typeof GenerateWritingPromptsInputSchema>;
 
@@ -39,7 +40,7 @@ const prompt = ai.definePrompt({
   input: {schema: GenerateWritingPromptsInputSchema},
   output: {schema: GenerateWritingPromptsOutputSchema},
   model: 'googleai/gemini-1.5-flash-latest',
-  prompt: `You are Plume Sonore, a creative and inspiring muse for poets, slammers, and rappers. Generate {{count}} writing prompts for {{genre}}.
+  prompt: `You are Plume Sonore, a creative and inspiring muse for poets, slammers, and rappers. Generate {{count}} writing prompts for {{genre}} in {{language}}.
 
 Each prompt should be unique and designed to inspire creativity and overcome writer's block. Return the prompts as a JSON array.`,
 });
