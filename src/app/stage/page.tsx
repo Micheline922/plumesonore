@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
@@ -43,19 +44,21 @@ export default function StagePage() {
   const audioChunksRef = useRef<Blob[]>([]);
   const { toast } = useToast();
 
-  const [currentInstrumental, setCurrentInstrumental] = useState<string | null>(null);
+  const [currentInstrumental, setCurrentInstrumental] = useState<{src: string, isPlaying: boolean} | null>(null);
   const instrumentalAudioRef = useRef<HTMLAudioElement | null>(null);
 
   const DURATION = 300; // 5 minutes performance
 
   useEffect(() => {
-    // Create audio element
     instrumentalAudioRef.current = new Audio();
+    instrumentalAudioRef.current.addEventListener('ended', () => {
+        setCurrentInstrumental(prev => prev ? { ...prev, isPlaying: false } : null);
+    });
 
-    // Cleanup
     return () => {
         if (instrumentalAudioRef.current) {
             instrumentalAudioRef.current.pause();
+            instrumentalAudioRef.current.removeEventListener('ended', () => {});
             instrumentalAudioRef.current = null;
         }
     }
@@ -129,6 +132,7 @@ export default function StagePage() {
     startRecording();
     if(instrumentalAudioRef.current?.src && instrumentalAudioRef.current.paused) {
         instrumentalAudioRef.current.play();
+        setCurrentInstrumental(prev => prev ? { ...prev, isPlaying: true } : null);
     }
   };
 
@@ -137,14 +141,16 @@ export default function StagePage() {
     if (stage === 'paused') {
       mediaRecorderRef.current.resume();
       setStage('recording');
-       if(instrumentalAudioRef.current?.src) {
+       if(instrumentalAudioRef.current?.src && instrumentalAudioRef.current.paused) {
         instrumentalAudioRef.current.play();
+        setCurrentInstrumental(prev => prev ? { ...prev, isPlaying: true } : null);
       }
     } else {
       mediaRecorderRef.current.pause();
       setStage('paused');
       if(instrumentalAudioRef.current?.src) {
         instrumentalAudioRef.current.pause();
+        setCurrentInstrumental(prev => prev ? { ...prev, isPlaying: false } : null);
       }
     }
   };
@@ -159,6 +165,7 @@ export default function StagePage() {
     }
     setStage('finished');
     setProgress(100);
+    setCurrentInstrumental(prev => prev ? { ...prev, isPlaying: false } : null);
   }
 
   const handleReset = () => {
@@ -208,15 +215,18 @@ export default function StagePage() {
   const toggleInstrumental = (trackSrc: string) => {
     if (!instrumentalAudioRef.current) return;
 
-    if (currentInstrumental === trackSrc) {
-        // Is current track, so pause it
-        instrumentalAudioRef.current.pause();
-        setCurrentInstrumental(null);
+    if (currentInstrumental?.src === trackSrc) {
+        if(currentInstrumental.isPlaying) {
+            instrumentalAudioRef.current.pause();
+            setCurrentInstrumental(prev => prev ? { ...prev, isPlaying: false } : null);
+        } else {
+            instrumentalAudioRef.current.play();
+            setCurrentInstrumental(prev => prev ? { ...prev, isPlaying: true } : null);
+        }
     } else {
-        // Is new track, so play it
         instrumentalAudioRef.current.src = trackSrc;
         instrumentalAudioRef.current.play();
-        setCurrentInstrumental(trackSrc);
+        setCurrentInstrumental({src: trackSrc, isPlaying: true});
     }
   };
 
@@ -224,7 +234,7 @@ export default function StagePage() {
     switch (stage) {
       case 'idle':
         return (
-          <Button size="lg" className="w-full" onClick={handleStart} disabled={!currentInstrumental}>
+          <Button size="lg" className="w-full" onClick={handleStart}>
             <Mic className="mr-2 h-5 w-5" />
             Commencer la performance
           </Button>
@@ -292,12 +302,12 @@ export default function StagePage() {
                 {instrumentalTracks.map((track) => (
                     <Button 
                         key={track.src} 
-                        variant={currentInstrumental === track.src ? "secondary" : "ghost"}
+                        variant={currentInstrumental?.src === track.src ? "secondary" : "ghost"}
                         className="w-full justify-start"
                         onClick={() => toggleInstrumental(track.src)}
                         disabled={stage !== 'idle'}
                     >
-                        {currentInstrumental === track.src ? <StopCircle className="mr-2 h-4 w-4" /> : <Play className="mr-2 h-4 w-4" />}
+                        {currentInstrumental?.src === track.src && currentInstrumental.isPlaying ? <StopCircle className="mr-2 h-4 w-4" /> : <Play className="mr-2 h-4 w-4" />}
                         {track.title}
                     </Button>
                 ))}
