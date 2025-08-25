@@ -121,31 +121,25 @@ export default function InspirationPage() {
 
   useEffect(() => {
     if (!audioRef.current) {
-      const audio = new Audio();
-      audioRef.current = audio;
-
-      const onPlay = () => setIsPlaying(true);
-      const onPause = () => setIsPlaying(false);
-      const onEnded = () => setIsPlaying(false);
-      const onCanPlay = () => {
-        // Autoplay when ready
-        audio.play();
-      };
-      
-      audio.addEventListener('play', onPlay);
-      audio.addEventListener('pause', onPause);
-      audio.addEventListener('ended', onEnded);
-      audio.addEventListener('canplaythrough', onCanPlay);
-
-      // Cleanup
-      return () => {
-        audio.removeEventListener('play', onPlay);
-        audio.removeEventListener('pause', onPause);
-        audio.removeEventListener('ended', onEnded);
-        audio.removeEventListener('canplaythrough', onCanPlay);
-        audio.pause();
-      };
+      audioRef.current = new Audio();
     }
+    const audio = audioRef.current;
+
+    const onPlay = () => setIsPlaying(true);
+    const onPause = () => setIsPlaying(false);
+    const onEnded = () => setIsPlaying(false);
+    
+    audio.addEventListener('play', onPlay);
+    audio.addEventListener('pause', onPause);
+    audio.addEventListener('ended', onEnded);
+
+    // Cleanup
+    return () => {
+      audio.removeEventListener('play', onPlay);
+      audio.removeEventListener('pause', onPause);
+      audio.removeEventListener('ended', onEnded);
+      audio.pause();
+    };
   }, []);
 
   const toggleMedia = (src: string, title: string) => {
@@ -154,14 +148,14 @@ export default function InspirationPage() {
     
     if (activeMedia?.src === src) {
       if (audio.paused) {
-        audio.play();
+        audio.play().catch(e => console.error("Error playing audio:", e));
       } else {
         audio.pause();
       }
     } else {
       setActiveMedia({ src, title });
       audio.src = src;
-      // The 'canplaythrough' event will trigger play()
+      audio.play().catch(e => console.error("Error playing audio:", e));
     }
   };
 
@@ -205,7 +199,7 @@ export default function InspirationPage() {
         <TabsContent value="sounds">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {inspirationSounds.map((sound) => {
-              const isActive = activeMedia?.title === sound.title;
+              const isActive = activeMedia?.src === sound.src;
               const isCurrentlyPlaying = isActive && isPlaying;
               return (
               <Card
@@ -250,7 +244,7 @@ export default function InspirationPage() {
          <TabsContent value="instrumentals">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {inspirationInstrumentals.map((instrumental) => {
-               const isActive = activeMedia?.title === instrumental.title;
+               const isActive = activeMedia?.src === instrumental.src;
                const isCurrentlyPlaying = isActive && isPlaying;
               return (
               <Card
@@ -314,5 +308,3 @@ export default function InspirationPage() {
     </main>
   );
 }
-
-    

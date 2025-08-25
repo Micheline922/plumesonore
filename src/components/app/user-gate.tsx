@@ -15,27 +15,16 @@ export function UserGate({ children }: { children: React.ReactNode }) {
     const userData = localStorage.getItem('plume-sonore-user');
     const isLoginPage = pathname === '/login';
 
-    // This logic runs on every path change to protect routes
-    // and manage sidebar visibility.
     setOpen(!isLoginPage);
 
-    if (!userData) {
-      if (!isLoginPage) {
-        router.replace('/login');
-      } else {
-        // Already on login page, so verification is complete (for now)
-        setIsVerified(true);
-      }
+    if (!userData && !isLoginPage) {
+      router.replace('/login');
+    } else if (userData && isLoginPage) {
+      router.replace('/');
     } else {
-      if (isLoginPage) {
-        router.replace('/');
-      } else {
-        // User is logged in and not on the login page
-        setIsVerified(true);
-      }
+      setIsVerified(true);
     }
   }, [router, pathname, setOpen]);
-
 
   if (!isVerified) {
     // Show a loading state or skeleton screen while checking auth
