@@ -1,17 +1,28 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { communityPosts as initialPosts } from '@/lib/placeholder-data';
-import { Heart, MessageCircle } from 'lucide-react';
+import { Heart, MessageCircle, Send, Pencil, Mail } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
-import { Send, Pencil } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+
 
 interface Comment {
   author: string;
@@ -80,13 +91,14 @@ export default function CommunityPage() {
   const [activeCommentSection, setActiveCommentSection] = useState<number | null>(null);
   const [commentText, setCommentText] = useState('');
   const [currentUser, setCurrentUser] = useState({ artistName: 'Artiste Anonyme' });
+  const { toast } = useToast();
 
-  useState(() => {
+  useEffect(() => {
     const user = localStorage.getItem('plume-sonore-user');
     if (user) {
       setCurrentUser(JSON.parse(user));
     }
-  });
+  }, []);
 
   const toggleLike = (id: number) => {
     setPosts(
@@ -147,6 +159,13 @@ export default function CommunityPage() {
     };
     setPosts([newPost, ...posts]);
   };
+  
+  const handleContact = (author: string) => {
+     toast({
+        title: `Message à ${author}`,
+        description: `Votre message a bien été envoyé.`,
+    });
+  }
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
@@ -168,7 +187,30 @@ export default function CommunityPage() {
                 <AvatarFallback>{post.author.charAt(0)}</AvatarFallback>
               </Avatar>
               <div className="grid gap-1">
-                <p className="text-sm font-semibold leading-none">{post.author}</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-semibold leading-none">{post.author}</p>
+                   <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                         <Button variant="ghost" size="icon" className="h-5 w-5 text-muted-foreground">
+                            <Mail className="h-3 w-3" />
+                         </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Contacter {post.author}</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Cette fonctionnalité est en cours de développement. Pour le moment, vous pouvez imaginer envoyer un message privé à cet artiste.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Annuler</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => handleContact(post.author)}>
+                            Envoyer un message
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                </div>
                 <p className="text-sm text-muted-foreground">{post.time}</p>
               </div>
             </CardHeader>
