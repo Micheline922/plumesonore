@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -12,15 +13,16 @@ import { useToast } from '@/hooks/use-toast';
 export default function LoginPage() {
   const [artistName, setArtistName] = useState('');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const router = useRouter();
   const { toast } = useToast();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!artistName || !email) {
+    if (!artistName || !email || !password) {
       toast({
         title: 'Champs requis',
-        description: "Veuillez entrer votre nom d'artiste et votre e-mail.",
+        description: "Veuillez remplir tous les champs.",
         variant: 'destructive',
       });
       return;
@@ -35,6 +37,8 @@ export default function LoginPage() {
         return;
     }
     
+    // NOTE: This is for UI simulation only.
+    // A real app would send this to a server for authentication.
     const userData = { artistName, email };
     localStorage.setItem('plume-sonore-user', JSON.stringify(userData));
     router.push('/');
@@ -72,6 +76,17 @@ export default function LoginPage() {
                 placeholder="email@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Mot de passe</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="********"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
               />
             </div>
