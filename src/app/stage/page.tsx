@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mic, Pause, Square, Save, CircleDot } from 'lucide-react';
+import { Mic, Pause, Square, Save, CircleDot, Music, Play, StopCircle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -18,6 +18,8 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { instrumentalTracks } from '@/lib/placeholder-data';
+import { Separator } from '@/components/ui/separator';
 
 type StageState = 'idle' | 'recording' | 'paused' | 'finished';
 
@@ -41,7 +43,24 @@ export default function StagePage() {
   const audioChunksRef = useRef<Blob[]>([]);
   const { toast } = useToast();
 
+  const [currentInstrumental, setCurrentInstrumental] = useState<string | null>(null);
+  const instrumentalAudioRef = useRef<HTMLAudioElement | null>(null);
+
   const DURATION = 300; // 5 minutes performance
+
+  useEffect(() => {
+    // Create audio element
+    instrumentalAudioRef.current = new Audio();
+
+    // Cleanup
+    return () => {
+        if (instrumentalAudioRef.current) {
+            instrumentalAudioRef.current.pause();
+            instrumentalAudioRef.current = null;
+        }
+    }
+  }, []);
+
 
   useEffect(() => {
     if (stage === 'recording') {
@@ -108,6 +127,9 @@ export default function StagePage() {
   const handleStart = () => {
     setProgress(0);
     startRecording();
+    if(instrumentalAudioRef.current?.src && instrumentalAudioRef.current.paused) {
+        instrumentalAudioRef.current.play();
+    }
   };
 
   const handlePause = () => {
@@ -115,15 +137,25 @@ export default function StagePage() {
     if (stage === 'paused') {
       mediaRecorderRef.current.resume();
       setStage('recording');
+       if(instrumentalAudioRef.current?.src) {
+        instrumentalAudioRef.current.play();
+      }
     } else {
       mediaRecorderRef.current.pause();
       setStage('paused');
+      if(instrumentalAudioRef.current?.src) {
+        instrumentalAudioRef.current.pause();
+      }
     }
   };
   
   const handleStop = () => {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
         mediaRecorderRef.current.stop();
+    }
+    if (instrumentalAudioRef.current) {
+        instrumentalAudioRef.current.pause();
+        instrumentalAudioRef.current.currentTime = 0;
     }
     setStage('finished');
     setProgress(100);
@@ -133,6 +165,11 @@ export default function StagePage() {
     setStage('idle');
     setProgress(0);
     setAudioURL('');
+    if (instrumentalAudioRef.current) {
+        instrumentalAudioRef.current.pause();
+        instrumentalAudioRef.current.src = '';
+    }
+    setCurrentInstrumental(null);
   }
 
   const handleSave = () => {
@@ -168,11 +205,26 @@ export default function StagePage() {
     handleReset();
   }
 
+  const toggleInstrumental = (trackSrc: string) => {
+    if (!instrumentalAudioRef.current) return;
+
+    if (currentInstrumental === trackSrc) {
+        // Is current track, so pause it
+        instrumentalAudioRef.current.pause();
+        setCurrentInstrumental(null);
+    } else {
+        // Is new track, so play it
+        instrumentalAudioRef.current.src = trackSrc;
+        instrumentalAudioRef.current.play();
+        setCurrentInstrumental(trackSrc);
+    }
+  };
+
   const renderButtons = () => {
     switch (stage) {
       case 'idle':
         return (
-          <Button size="lg" className="w-full" onClick={handleStart}>
+          <Button size="lg" className="w-full" onClick={handleStart} disabled={!currentInstrumental}>
             <Mic className="mr-2 h-5 w-5" />
             Commencer la performance
           </Button>
@@ -228,7 +280,31 @@ export default function StagePage() {
             Le micro est à vous. Enregistrez vos textes, testez votre flow et préparez-vous pour la scène.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6">
+           
+           <div className="space-y-4">
+            <Separator />
+             <div className="flex items-center gap-2">
+                <Music className="h-5 w-5 text-muted-foreground" />
+                <h3 className="font-headline text-lg">Choisir un instrumental</h3>
+             </div>
+             <div className="space-y-2 text-left">
+                {instrumentalTracks.map((track) => (
+                    <Button 
+                        key={track.src} 
+                        variant={currentInstrumental === track.src ? "secondary" : "ghost"}
+                        className="w-full justify-start"
+                        onClick={() => toggleInstrumental(track.src)}
+                        disabled={stage !== 'idle'}
+                    >
+                        {currentInstrumental === track.src ? <StopCircle className="mr-2 h-4 w-4" /> : <Play className="mr-2 h-4 w-4" />}
+                        {track.title}
+                    </Button>
+                ))}
+             </div>
+             <Separator />
+           </div>
+           
            {(stage === 'recording' || stage === 'paused') && (
             <div className="space-y-2">
               <Progress value={progress} />

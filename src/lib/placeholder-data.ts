@@ -1,3 +1,4 @@
+
 import type { SVGProps } from 'react';
 
 export const learningTracks = [
@@ -175,5 +176,24 @@ L'art de la chute, c'est de savoir rebondir plus haut,
 De faire de chaque échec un tremplin, un nouvel assaut,
 C'est la grâce du funambule qui perd l'équilibre,
 Mais dans son vertige, invente une danse et se sent vivre.`,
+  },
+];
+
+export const instrumentalTracks = [
+  {
+    title: 'Pluie légère',
+    src: 'https://storage.googleapis.com/studiopaas-assets/sound-effects/light-rain.mp3',
+  },
+  {
+    title: 'Nuit étoilée',
+    src: 'https://storage.googleapis.com/studiopaas-assets/sound-effects/starry-night.mp3',
+  },
+  {
+    title: 'Piano mélancolique',
+    src: 'https://storage.googleapis.com/studiopaas-assets/sound-effects/melancholic-piano.mp3',
+  },
+  {
+    title: 'Forêt paisible',
+    src: 'https://storage.googleapis.com/studiopaas-assets/sound-effects/peaceful-forest.mp3',
   },
 ];
