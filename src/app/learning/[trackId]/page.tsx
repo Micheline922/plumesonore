@@ -166,7 +166,14 @@ function AITutor({ trackTitle }: AIInteractionProps) {
     );
 }
 
-function LearningTrackClientPage({ track }: { track: (typeof learningTracks)[0] }) {
+export default function LearningTrackPage({ params }: { params: { trackId: string } }) {
+  const trackId = parseInt(params.trackId, 10);
+  const track = learningTracks[trackId];
+
+  if (isNaN(trackId) || !track) {
+    notFound();
+  }
+
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <div className="max-w-4xl mx-auto w-full">
@@ -199,16 +206,4 @@ function LearningTrackClientPage({ track }: { track: (typeof learningTracks)[0] 
       </div>
     </main>
   );
-}
-
-
-export default function LearningTrackPage({ params }: { params: { trackId: string } }) {
-  const trackId = parseInt(params.trackId, 10);
-  const track = learningTracks[trackId];
-
-  if (isNaN(trackId) || !track) {
-    notFound();
-  }
-
-  return <LearningTrackClientPage track={track} />;
 }
