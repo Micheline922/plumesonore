@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { notFound } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 import { learningTracks } from '@/lib/placeholder-data';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -166,7 +166,15 @@ function AITutor({ trackTitle }: AIInteractionProps) {
     );
 }
 
-function LearningTrackClientPage({ track }: { track: (typeof learningTracks)[0] }) {
+export default function LearningTrackPage() {
+  const params = useParams();
+  const trackId = parseInt(params.trackId as string, 10);
+  
+  if (isNaN(trackId) || trackId < 0 || trackId >= learningTracks.length) {
+    notFound();
+  }
+  const track = learningTracks[trackId];
+
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <div className="max-w-4xl mx-auto w-full">
@@ -199,16 +207,4 @@ function LearningTrackClientPage({ track }: { track: (typeof learningTracks)[0] 
       </div>
     </main>
   );
-}
-
-
-export default function LearningTrackPage({ params }: { params: { trackId: string } }) {
-  const trackId = parseInt(params.trackId, 10);
-  
-  if (isNaN(trackId) || trackId < 0 || trackId >= learningTracks.length) {
-    notFound();
-  }
-  const track = learningTracks[trackId];
-
-  return <LearningTrackClientPage track={track} />;
 }
