@@ -9,10 +9,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-interface Writing {
+interface Creation {
     id: number;
     title: string;
     content: string;
+    type: 'text';
     date: string;
 }
 
@@ -31,17 +32,18 @@ export default function WritingPadPage() {
       return;
     }
 
-    const newWriting: Writing = {
+    const newCreation: Creation = {
       id: Date.now(),
       title,
       content,
+      type: 'text',
       date: new Date().toISOString(),
     };
 
-    const existingWritingsRaw = localStorage.getItem('plume-sonore-writings');
-    const existingWritings: Writing[] = existingWritingsRaw ? JSON.parse(existingWritingsRaw) : [];
+    const existingCreationsRaw = localStorage.getItem('plume-sonore-creations');
+    const existingCreations: Creation[] = existingCreationsRaw ? JSON.parse(existingCreationsRaw) : [];
     
-    localStorage.setItem('plume-sonore-writings', JSON.stringify([newWriting, ...existingWritings]));
+    localStorage.setItem('plume-sonore-creations', JSON.stringify([newCreation, ...existingCreations]));
 
     toast({
         title: 'Sauvegardé !',
