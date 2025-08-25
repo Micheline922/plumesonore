@@ -3,6 +3,7 @@ import { AppSidebar } from '@/components/app/app-sidebar';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { Toaster } from '@/components/ui/toaster';
 import { UserGate } from '@/components/app/user-gate';
+import { AppHeader } from '@/components/app/app-header';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -29,7 +30,10 @@ export default function RootLayout({
         <SidebarProvider>
           <UserGate>
               <AppSidebar />
-              <SidebarInset>{children}</SidebarInset>
+              <div className="flex flex-1 flex-col">
+                <AppHeader />
+                <SidebarInset>{children}</SidebarInset>
+              </div>
           </UserGate>
         </SidebarProvider>
         <Toaster />
