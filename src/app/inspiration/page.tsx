@@ -1,12 +1,11 @@
 
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { inspirationQuotes, inspirationSounds, inspirationTexts, inspirationInstrumentals } from '@/lib/placeholder-data';
-import { Headphones, BookText, Play, Pause, Music, Wand2, Loader2 } from 'lucide-react';
-import Image from 'next/image';
+import { inspirationQuotes, inspirationTexts } from '@/lib/placeholder-data';
+import { BookText, Wand2, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -115,58 +114,6 @@ function InspirationGenerator() {
 
 
 export default function InspirationPage() {
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [activeMedia, setActiveMedia] = useState<{src: string, title: string} | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-
-  useEffect(() => {
-    if (!audioRef.current) {
-      audioRef.current = new Audio();
-    }
-    const audio = audioRef.current;
-
-    const onPlay = () => setIsPlaying(true);
-    const onPause = () => setIsPlaying(false);
-    const onEnded = () => {
-      setIsPlaying(false);
-      setActiveMedia(null);
-    };
-    const onCanPlay = () => {
-      audio.play().catch(e => console.error("Error playing audio:", e));
-    }
-    
-    audio.addEventListener('play', onPlay);
-    audio.addEventListener('pause', onPause);
-    audio.addEventListener('ended', onEnded);
-    audio.addEventListener('canplay', onCanPlay);
-
-    // Cleanup
-    return () => {
-      audio.removeEventListener('play', onPlay);
-      audio.removeEventListener('pause', onPause);
-      audio.removeEventListener('ended', onEnded);
-      audio.removeEventListener('canplay', onCanPlay);
-      audio.pause();
-    };
-  }, []);
-
-  const toggleMedia = (src: string, title: string) => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    
-    if (activeMedia?.src === src) {
-      if (audio.paused) {
-        audio.play().catch(e => console.error("Error playing audio:", e));
-      } else {
-        audio.pause();
-      }
-    } else {
-      setActiveMedia({ src, title });
-      audio.src = src;
-      // The 'canplay' event listener will trigger play.
-    }
-  };
-
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
@@ -182,9 +129,8 @@ export default function InspirationPage() {
       <InspirationGenerator />
 
       <Tabs defaultValue="quotes" className="w-full">
-        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3">
+        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2">
           <TabsTrigger value="quotes">Citations</TabsTrigger>
-          <TabsTrigger value="instrumentals">Instrumentaux</TabsTrigger>
           <TabsTrigger value="texts">Textes Célèbres</TabsTrigger>
         </TabsList>
         <TabsContent value="quotes">
@@ -201,51 +147,6 @@ export default function InspirationPage() {
                 </CardFooter>
               </Card>
             ))}
-          </div>
-        </TabsContent>
-         <TabsContent value="instrumentals">
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {inspirationInstrumentals.map((instrumental) => {
-               const isActive = activeMedia?.src === instrumental.src;
-               const isCurrentlyPlaying = isActive && isPlaying;
-              return (
-              <Card
-                key={instrumental.title}
-                className="cursor-pointer hover:border-primary transition-colors flex flex-col"
-                onClick={() => toggleMedia(instrumental.src, instrumental.title)}
-              >
-                 <CardHeader className="p-0 relative">
-                  <Image
-                    src={`https://placehold.co/600x400.png`}
-                    alt={instrumental.title}
-                    width={600}
-                    height={400}
-                    className="rounded-t-lg object-cover aspect-video"
-                    data-ai-hint={instrumental.hint}
-                  />
-                   {isCurrentlyPlaying && (
-                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-t-lg">
-                      <Pause className="h-12 w-12 text-white" />
-                    </div>
-                  )}
-                  {isActive && !isCurrentlyPlaying && (
-                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-t-lg">
-                        <Play className="h-12 w-12 text-white" />
-                    </div>
-                  )}
-                </CardHeader>
-                <CardContent className="p-4 flex-grow">
-                  <CardTitle className="font-headline text-lg">{instrumental.title}</CardTitle>
-                </CardContent>
-                <CardFooter className="flex justify-between items-center text-sm text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    {isCurrentlyPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                    <span>{isCurrentlyPlaying ? 'En cours' : 'Écouter'}</span>
-                  </div>
-                  <span>{instrumental.duration}</span>
-                </CardFooter>
-              </Card>
-            )})}
           </div>
         </TabsContent>
         <TabsContent value="texts">
