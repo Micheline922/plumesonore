@@ -55,10 +55,12 @@ export const communityPosts = [
     time: 'il y a 2 heures',
     text: "Premier jet d'un texte sur le temps qui passe. Qu'en pensez-vous ?\n\n'Les horloges se moquent de nos prières,\ngoutte à goutte, le sablier s'égrène.\nHier n'est qu'un souvenir dans la bruine,\ndemain, une promesse qu'on dessine.'",
     likes: 12,
-    commentsCount: 2,
+    commentsCount: 4,
     comments: [
         { author: 'Slam_Sofia', text: "J'adore la dernière phrase, très poétique !" },
-        { author: 'Rap_Ryad', text: "Puissant. La métaphore du sablier est bien trouvée." }
+        { author: 'Rap_Ryad', text: "Puissant. La métaphore du sablier est bien trouvée." },
+        { author: 'MuseUrbaine', text: "Très inspirant, ça donne envie d'écrire sur ce thème." },
+        { author: 'PlumeDeNuit', text: "Le rythme est excellent. Continue comme ça." }
     ]
   },
   {
@@ -68,9 +70,11 @@ export const communityPosts = [
     time: 'il y a 5 heures',
     text: "Besoin de feedback sur ce passage, je trouve que le rythme n'est pas encore parfait.\n\n'La ville respire le béton, une jungle de verre et d'acier / Où les rêves se perdent dans le bruit des klaxons pressés.'",
     likes: 25,
-    commentsCount: 1,
+    commentsCount: 3,
     comments: [
-        { author: 'Lyric_Leo', text: "Le rythme est bon, peut-être juste marquer une pause après 'béton' ?" }
+        { author: 'Lyric_Leo', text: "Le rythme est bon, peut-être juste marquer une pause après 'béton' ?" },
+        { author: 'Rap_Ryad', text: "L'image de la jungle de verre est forte. J'aime beaucoup." },
+        { author: 'PoeteAnonyme', text: "Essaye de lire la deuxième phrase plus lentement pour voir." }
     ]
   },
   {
@@ -80,9 +84,11 @@ export const communityPosts = [
     time: 'il y a 1 jour',
     text: 'Cherche un(e) artiste pour une collaboration sur un morceau. Thème : la résilience. Envoyez-moi vos textes !',
     likes: 8,
-    commentsCount: 1,
+    commentsCount: 3,
     comments: [
-      { author: 'PoeteAnonyme', text: "Super initiative, je t'envoie un MP." }
+      { author: 'PoeteAnonyme', text: "Super initiative, je t'envoie un MP." },
+      { author: 'Slam_Sofia', text: "Très intéressée ! Je prépare quelque chose." },
+      { author: 'Lyric_Leo', text: "Bonne idée, le thème est super." }
     ]
   },
    {
@@ -92,11 +98,12 @@ export const communityPosts = [
     time: 'il y a 2 jours',
     text: "Je sèche sur un thème... des idées ? J'ai envie d'écrire sur quelque chose de puissant, de viscéral.",
     likes: 15,
-    commentsCount: 3,
+    commentsCount: 4,
     comments: [
         { author: 'Lyric_Leo', text: "La nostalgie de l'enfance ?" },
         { author: 'Slam_Sofia', text: "La colère face à l'injustice, ça marche toujours." },
         { author: 'Rap_Ryad', text: "L'ambition dévorante." },
+        { author: 'PlumeDeNuit', text: "Le sentiment d'être un imposteur. C'est très puissant." }
     ]
   },
    {
@@ -106,10 +113,11 @@ export const communityPosts = [
     time: 'il y a 3 jours',
     text: "Petit poème du soir :\n\n'La lune est un projecteur blafard\nSur la scène de nos boulevards\nOù chaque ombre danse un ballet\nSilencieux et désolé.'",
     likes: 42,
-    commentsCount: 2,
+    commentsCount: 3,
     comments: [
         { author: 'Slam_Sofia', text: 'Magnifique et mélancolique. Bravo.' },
-        { author: 'MuseUrbaine', text: 'Très belle image !' }
+        { author: 'MuseUrbaine', text: 'Très belle image !' },
+        { author: 'Lyric_Leo', text: "J'aime beaucoup l'atmosphère qui se dégage." }
     ]
   },
    {
