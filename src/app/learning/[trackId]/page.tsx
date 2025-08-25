@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { notFound } from 'next/navigation';
 import { learningTracks } from '@/lib/placeholder-data';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Clock, Bot, BrainCircuit, Lightbulb, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -166,14 +166,7 @@ function AITutor({ trackTitle }: AIInteractionProps) {
     );
 }
 
-export default function LearningTrackPage({ params }: { params: { trackId: string } }) {
-  const trackId = parseInt(params.trackId, 10);
-  const track = learningTracks[trackId];
-
-  if (isNaN(trackId) || !track) {
-    notFound();
-  }
-
+function LearningTrackClientPage({ track }: { track: (typeof learningTracks)[0] }) {
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <div className="max-w-4xl mx-auto w-full">
@@ -206,4 +199,16 @@ export default function LearningTrackPage({ params }: { params: { trackId: strin
       </div>
     </main>
   );
+}
+
+
+export default function LearningTrackPage({ params }: { params: { trackId: string } }) {
+  const trackId = parseInt(params.trackId, 10);
+  
+  if (isNaN(trackId) || trackId < 0 || trackId >= learningTracks.length) {
+    notFound();
+  }
+  const track = learningTracks[trackId];
+
+  return <LearningTrackClientPage track={track} />;
 }
