@@ -62,10 +62,10 @@ export const inspirationQuotes = [
 ];
 
 export const inspirationSounds = [
-  { title: 'Pluie sur une fenêtre', hint: 'rain window', duration: '3:45' },
-  { title: 'Café animé', hint: 'cafe chatter', duration: '5:10' },
-  { title: 'Métro parisien', hint: 'subway train', duration: '2:30' },
-  { title: 'Feu de cheminée', hint: 'fireplace crackling', duration: '4:02' },
+  { title: 'Pluie sur une fenêtre', hint: 'rain window', duration: '3:45', src: 'https://cdn.pixabay.com/download/audio/2022/08/10/audio_2c24c22cb1.mp3' },
+  { title: 'Café animé', hint: 'cafe chatter', duration: '5:10', src: 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_7484d74a8a.mp3' },
+  { title: 'Métro parisien', hint: 'subway train', duration: '2:30', src: 'https://cdn.pixabay.com/download/audio/2022/03/02/audio_13a1b32a76.mp3' },
+  { title: 'Feu de cheminée', hint: 'fireplace crackling', duration: '4:02', src: 'https://cdn.pixabay.com/download/audio/2021/08/04/audio_3661085f18.mp3' },
 ];
 
 export const inspirationTexts = [

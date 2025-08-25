@@ -1,12 +1,39 @@
+'use client';
+
+import { useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { inspirationQuotes, inspirationSounds, inspirationTexts } from '@/lib/placeholder-data';
-import { Headphones, BookText } from 'lucide-react';
+import { Headphones, BookText, Play, Pause } from 'lucide-react';
 import Image from 'next/image';
 
 export default function InspirationPage() {
+  const [activeSound, setActiveSound] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
+
+  const toggleSound = (soundSrc: string, soundTitle: string) => {
+    if (activeSound === soundTitle && audioRef.current) {
+      if (audioRef.current.paused) {
+        audioRef.current.play();
+      } else {
+        audioRef.current.pause();
+      }
+    } else {
+      setActiveSound(soundTitle);
+      if (audioRef.current) {
+        audioRef.current.src = soundSrc;
+        audioRef.current.play();
+      }
+    }
+  };
+
+  const isPlaying = (title: string) => {
+    return activeSound === title && audioRef.current && !audioRef.current.paused;
+  };
+
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+      <audio ref={audioRef} onEnded={() => setActiveSound(null)} />
       <div className="flex items-center">
         <div>
           <h1 className="font-headline text-3xl font-bold tracking-tight">Banque d'Inspiration</h1>
@@ -41,8 +68,12 @@ export default function InspirationPage() {
         <TabsContent value="sounds">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {inspirationSounds.map((sound) => (
-              <Card key={sound.title}>
-                 <CardHeader className="p-0">
+              <Card
+                key={sound.title}
+                className="cursor-pointer hover:border-primary transition-colors"
+                onClick={() => toggleSound(sound.src, sound.title)}
+              >
+                <CardHeader className="p-0 relative">
                   <Image
                     src={`https://placehold.co/600x400.png`}
                     alt={sound.title}
@@ -51,14 +82,24 @@ export default function InspirationPage() {
                     className="rounded-t-lg object-cover aspect-video"
                     data-ai-hint={sound.hint}
                   />
+                   {isPlaying(sound.title) && (
+                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                      <Pause className="h-12 w-12 text-white" />
+                    </div>
+                  )}
+                  {activeSound === sound.title && !isPlaying(sound.title) && (
+                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                        <Play className="h-12 w-12 text-white" />
+                    </div>
+                  )}
                 </CardHeader>
                 <CardContent className="p-4">
                   <CardTitle className="font-headline text-lg">{sound.title}</CardTitle>
                 </CardContent>
                 <CardFooter className="flex justify-between items-center text-sm text-muted-foreground">
                   <div className="flex items-center gap-2">
-                    <Headphones className="h-4 w-4" />
-                    <span>Écouter</span>
+                    {isPlaying(sound.title) ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                    <span>{isPlaying(sound.title) ? 'En cours' : 'Écouter'}</span>
                   </div>
                   <span>{sound.duration}</span>
                 </CardFooter>
@@ -78,7 +119,7 @@ export default function InspirationPage() {
                   <CardDescription>{text.author}</CardDescription>
                 </CardHeader>
                 <CardFooter className="mt-auto">
-                    <p className="text-sm text-muted-foreground">{text.genre}</p>
+                  <p className="text-sm text-muted-foreground">{text.genre}</p>
                 </CardFooter>
               </Card>
             ))}
