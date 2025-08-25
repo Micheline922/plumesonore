@@ -1,1 +1,6 @@
-// Flows will be imported for their side effects in this file.
+import { config } from 'dotenv';
+config();
+
+import '@/ai/flows/generate-writing-prompts.ts';
+import '@/ai/flows/get-feedback-on-text.ts';
+import '@/ai/flows/generate-rhymes.ts';
