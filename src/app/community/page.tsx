@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { communityPosts as initialPosts } from '@/lib/placeholder-data';
-import { Heart, MessageCircle, Send, Pencil, Mail } from 'lucide-react';
+import { Heart, MessageCircle, Send, Pencil, Mail, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -22,6 +22,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { generateChatResponse } from '@/ai/flows/generate-chat-response';
 
 
 interface Comment {
@@ -86,13 +87,89 @@ function NewPostForm({ onAddPost, currentUser }: { onAddPost: (text: string) => 
   );
 }
 
+function ContactDialog({ author, currentUser }: { author: string; currentUser: { artistName: string } }) {
+  const [message, setMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const { toast } = useToast();
+
+  const handleContact = async () => {
+    if (!message.trim()) {
+      toast({
+        title: 'Message vide',
+        description: 'Veuillez écrire un message à envoyer.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const result = await generateChatResponse({
+        senderName: currentUser.artistName,
+        recipientName: author,
+        message: message,
+      });
+      
+      toast({
+        title: `Réponse de ${author}`,
+        description: result.response,
+        duration: 8000,
+      });
+
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: 'Erreur',
+        description: "Impossible d'envoyer le message pour le moment.",
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+      setMessage('');
+      setIsOpen(false);
+    }
+  };
+
+  return (
+    <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
+      <AlertDialogTrigger asChild>
+        <Button variant="ghost" size="icon" className="h-5 w-5 text-muted-foreground">
+          <Mail className="h-3 w-3" />
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Contacter {author}</AlertDialogTitle>
+          <AlertDialogDescription>
+            Écrivez votre message ci-dessous. L'artiste (virtuel) vous répondra sous peu.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <Textarea
+          placeholder={`Votre message pour ${author}...`}
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          disabled={isLoading}
+        />
+        <AlertDialogFooter>
+          <AlertDialogCancel>Annuler</AlertDialogCancel>
+          <AlertDialogAction onClick={handleContact} disabled={isLoading}>
+            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+            Envoyer
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
+
 export default function CommunityPage() {
   const [posts, setPosts] = useState<Post[]>(initialPosts);
   const [activeCommentSection, setActiveCommentSection] = useState<number | null>(null);
   const [commentText, setCommentText] = useState('');
   const [currentUser, setCurrentUser] = useState({ artistName: 'Artiste Anonyme' });
-  const { toast } = useToast();
-
+  
   useEffect(() => {
     const user = localStorage.getItem('plume-sonore-user');
     if (user) {
@@ -160,13 +237,6 @@ export default function CommunityPage() {
     setPosts([newPost, ...posts]);
   };
   
-  const handleContact = (author: string) => {
-     toast({
-        title: `Message à ${author}`,
-        description: `Votre message a bien été envoyé.`,
-    });
-  }
-
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <div className="flex items-center">
@@ -189,27 +259,7 @@ export default function CommunityPage() {
               <div className="grid gap-1">
                 <div className="flex items-center gap-2">
                   <p className="text-sm font-semibold leading-none">{post.author}</p>
-                   <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                         <Button variant="ghost" size="icon" className="h-5 w-5 text-muted-foreground">
-                            <Mail className="h-3 w-3" />
-                         </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Contacter {post.author}</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Cette fonctionnalité est en cours de développement. Pour le moment, vous pouvez imaginer envoyer un message privé à cet artiste.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Annuler</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => handleContact(post.author)}>
-                            Envoyer un message
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                   <ContactDialog author={post.author} currentUser={currentUser} />
                 </div>
                 <p className="text-sm text-muted-foreground">{post.time}</p>
               </div>
