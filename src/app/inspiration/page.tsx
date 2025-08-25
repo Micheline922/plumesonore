@@ -4,8 +4,92 @@ import { useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { inspirationQuotes, inspirationSounds, inspirationTexts, inspirationInstrumentals } from '@/lib/placeholder-data';
-import { Headphones, BookText, Play, Pause, Music } from 'lucide-react';
+import { Headphones, BookText, Play, Pause, Music, Wand2, Loader2 } from 'lucide-react';
 import Image from 'next/image';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { generateInspiration, GenerateInspirationOutput } from '@/ai/flows/generate-inspiration';
+
+function InspirationGenerator() {
+  const [word, setWord] = useState('');
+  const [result, setResult] = useState<GenerateInspirationOutput | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!word) {
+      toast({
+        title: 'Champ requis',
+        description: 'Veuillez entrer un mot pour générer l\'inspiration.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    setIsLoading(true);
+    setResult(null);
+    try {
+      const inspiration = await generateInspiration({ word });
+      setResult(inspiration);
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: 'Erreur',
+        description: 'Une erreur est survenue lors de la génération de l\'inspiration.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <Card className="mb-8">
+      <CardHeader>
+        <CardTitle className="font-headline text-xl">Développez une idée</CardTitle>
+        <CardDescription>Entrez un mot-clé et laissez l'IA vous proposer des pistes créatives.</CardDescription>
+      </CardHeader>
+      <form onSubmit={handleSubmit}>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="word">Votre mot</Label>
+            <Input
+              id="word"
+              placeholder="Ex: Éphémère, Silence, Chaos..."
+              value={word}
+              onChange={(e) => setWord(e.target.value)}
+              disabled={isLoading}
+            />
+          </div>
+          {isLoading && (
+            <div className="flex items-center justify-center p-8">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          )}
+          {result && result.paragraphs && (
+            <div className="space-y-4 rounded-md border bg-background/50 p-4">
+              <h3 className="font-headline font-semibold">Pistes créatives pour "{word}" :</h3>
+              {result.paragraphs.map((paragraph, index) => (
+                <p key={index} className="text-sm text-muted-foreground whitespace-pre-wrap">
+                  {paragraph}
+                </p>
+              ))}
+            </div>
+          )}
+        </CardContent>
+        <CardFooter>
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
+            Trouver l'inspiration
+          </Button>
+        </CardFooter>
+      </form>
+    </Card>
+  );
+}
+
 
 export default function InspirationPage() {
   const [activeMedia, setActiveMedia] = useState<{src: string, title: string} | null>(null);
@@ -44,7 +128,6 @@ export default function InspirationPage() {
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-      <audio ref={audioRef} onEnded={onEnded} />
       <div className="flex items-center">
         <div>
           <h1 className="font-headline text-3xl font-bold tracking-tight">Banque d'Inspiration</h1>
@@ -53,6 +136,8 @@ export default function InspirationPage() {
           </p>
         </div>
       </div>
+      
+      <InspirationGenerator />
 
       <Tabs defaultValue="quotes" className="w-full">
         <TabsList className="grid w-full grid-cols-1 sm:grid-cols-4">
@@ -109,6 +194,7 @@ export default function InspirationPage() {
                   <CardTitle className="font-headline text-lg">{sound.title}</CardTitle>
                 </CardContent>
                 <CardFooter className="flex justify-between items-center text-sm text-muted-foreground">
+                   <audio ref={audioRef} onEnded={onEnded} />
                   <div className="flex items-center gap-2">
                     {isPlaying(sound.title) ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                     <span>{isPlaying(sound.title) ? 'En cours' : 'Écouter'}</span>
