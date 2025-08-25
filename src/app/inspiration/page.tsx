@@ -5,13 +5,20 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { inspirationQuotes, inspirationTexts } from '@/lib/placeholder-data';
-import { BookText, Wand2, Loader2 } from 'lucide-react';
+import { Wand2, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { generateInspiration, GenerateInspirationOutput } from '@/ai/flows/generate-inspiration';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+
 
 type Language = 'french' | 'english';
 
@@ -27,7 +34,7 @@ function InspirationGenerator() {
     if (!word) {
       toast({
         title: 'Champ requis',
-        description: 'Veuillez entrer un mot pour générer l\'inspiration.',
+        description: "Veuillez entrer un mot pour générer l'inspiration.",
         variant: 'destructive',
       });
       return;
@@ -41,7 +48,7 @@ function InspirationGenerator() {
       console.error(error);
       toast({
         title: 'Erreur',
-        description: 'Une erreur est survenue lors de la génération de l\'inspiration.',
+        description: "Une erreur est survenue lors de la génération de l'inspiration.",
         variant: 'destructive',
       });
     } finally {
@@ -150,22 +157,23 @@ export default function InspirationPage() {
           </div>
         </TabsContent>
         <TabsContent value="texts">
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {inspirationTexts.map((text) => (
-              <Card key={text.title} className="flex flex-col">
-                <CardHeader>
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <BookText className="h-6 w-6" />
+           <Accordion type="single" collapsible className="w-full">
+            {inspirationTexts.map((text, index) => (
+               <AccordionItem value={`item-${index}`} key={text.title}>
+                <AccordionTrigger className="hover:no-underline">
+                  <div className='text-left'>
+                    <p className="font-headline font-semibold">{text.title}</p>
+                    <p className="text-sm text-muted-foreground">{text.author} - <span className='font-sans'>{text.genre}</span></p>
                   </div>
-                  <CardTitle className="font-headline">{text.title}</CardTitle>
-                  <CardDescription>{text.author}</CardDescription>
-                </CardHeader>
-                <CardFooter className="mt-auto">
-                  <p className="text-sm text-muted-foreground">{text.genre}</p>
-                </CardFooter>
-              </Card>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <p className="whitespace-pre-wrap text-muted-foreground p-4 bg-muted/50 rounded-md">
+                    {text.content}
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
             ))}
-          </div>
+          </Accordion>
         </TabsContent>
       </Tabs>
     </main>

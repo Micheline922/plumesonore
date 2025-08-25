@@ -76,7 +76,46 @@ export const inspirationInstrumentals = [
 ];
 
 export const inspirationTexts = [
-  { title: 'Demain, dès l\'aube...', author: 'Victor Hugo', genre: 'Poésie' },
-  { title: 'Je me souviens', author: 'Georges Perec', genre: 'Prose' },
-  { title: 'L\'art de la chute', author: 'MC Solaar', genre: 'Rap' },
+  {
+    title: "Demain, dès l'aube...",
+    author: 'Victor Hugo',
+    genre: 'Poésie',
+    content: `Demain, dès l'aube, à l'heure où blanchit la campagne,
+Je partirai. Vois-tu, je sais que tu m'attends.
+J'irai par la forêt, j'irai par la montagne.
+Je ne puis demeurer loin de toi plus longtemps.
+
+Je marcherai les yeux fixés sur mes pensées,
+Sans rien voir au dehors, sans entendre aucun bruit,
+Seul, inconnu, le dos courbé, les mains croisées,
+Triste, et le jour pour moi sera comme la nuit.
+
+Je ne regarderai ni l'or du soir qui tombe,
+Ni les voiles au loin descendant vers Harfleur,
+Et quand j'arriverai, je mettrai sur ta tombe
+Un bouquet de houx vert et de bruyère en fleur.`,
+  },
+  {
+    title: 'Je me souviens',
+    author: 'Georges Perec',
+    genre: 'Prose (Extrait)',
+    content: `Je me souviens des Rubik's Cubes.
+Je me souviens que les disques de l'Europe, le midi, commençaient par l'indicatif de "La Chanson de Malbrough".
+Je me souviens que lorsque j'étais en sixième ou en cinquième, mes parents m'emmenèrent voir "Le Pont de la rivière Kwaï" et qu'à la fin du film, comme tout le monde sanglotait, mon père s'exclama d'une voix forte : "Ce n'est qu'un film !"
+Je me souviens que la première fois que j'ai triché dans un examen (c'était en troisième, en composition d'anglais), j'ai eu zéro (le professeur s'était aperçu que j'avais glissé ma grammaire anglaise dans mon dictionnaire).`,
+  },
+  {
+    title: "L'art de la chute",
+    author: 'MC Solaar',
+    genre: 'Rap (Extrait)',
+    content: `Tomber sept fois, se relever huit, voilà la devise des acrobates de la vie,
+Ceux qui, malgré les croche-pattes, les revers et les avanies,
+Transforment chaque faux pas en une figure de style,
+Et de leurs cicatrices, se font un habit de lumière, habile.
+
+L'art de la chute, c'est de savoir rebondir plus haut,
+De faire de chaque échec un tremplin, un nouvel assaut,
+C'est la grâce du funambule qui perd l'équilibre,
+Mais dans son vertige, invente une danse et se sent vivre.`,
+  },
 ];
