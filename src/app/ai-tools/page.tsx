@@ -16,7 +16,7 @@ export default function AIToolsPage() {
       </div>
 
       <Tabs defaultValue="rhymes" className="w-full">
-        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3">
+        <TabsList className="grid w-full grid-cols-1 h-auto md:h-10 md:grid-cols-3">
           <TabsTrigger value="rhymes">Générateur de rimes</TabsTrigger>
           <TabsTrigger value="feedback">Feedback sur texte</TabsTrigger>
           <TabsTrigger value="prompts">Générateur d'idées</TabsTrigger>
