@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
@@ -119,42 +120,48 @@ export default function InspirationPage() {
   const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
-    // Create the audio element only once on the client
     if (!audioRef.current) {
-      audioRef.current = new Audio();
-      audioRef.current.addEventListener('ended', () => {
-        setIsPlaying(false);
-      });
-      audioRef.current.addEventListener('pause', () => {
-        setIsPlaying(false);
-      });
-      audioRef.current.addEventListener('play', () => {
-        setIsPlaying(true);
-      });
-    }
-    
-    // Cleanup function to pause and remove event listeners
-    return () => {
-        if(audioRef.current){
-            audioRef.current.pause();
-            // No need to remove listeners if audio element persists for component lifetime
-        }
+      const audio = new Audio();
+      audioRef.current = audio;
+
+      const onPlay = () => setIsPlaying(true);
+      const onPause = () => setIsPlaying(false);
+      const onEnded = () => setIsPlaying(false);
+      const onCanPlay = () => {
+        // Autoplay when ready
+        audio.play();
+      };
+      
+      audio.addEventListener('play', onPlay);
+      audio.addEventListener('pause', onPause);
+      audio.addEventListener('ended', onEnded);
+      audio.addEventListener('canplaythrough', onCanPlay);
+
+      // Cleanup
+      return () => {
+        audio.removeEventListener('play', onPlay);
+        audio.removeEventListener('pause', onPause);
+        audio.removeEventListener('ended', onEnded);
+        audio.removeEventListener('canplaythrough', onCanPlay);
+        audio.pause();
+      };
     }
   }, []);
 
   const toggleMedia = (src: string, title: string) => {
-    if (activeMedia?.src === src && audioRef.current) {
-      if (audioRef.current.paused) {
-        audioRef.current.play();
+    const audio = audioRef.current;
+    if (!audio) return;
+    
+    if (activeMedia?.src === src) {
+      if (audio.paused) {
+        audio.play();
       } else {
-        audioRef.current.pause();
+        audio.pause();
       }
     } else {
       setActiveMedia({ src, title });
-      if (audioRef.current) {
-        audioRef.current.src = src;
-        audioRef.current.play();
-      }
+      audio.src = src;
+      // The 'canplaythrough' event will trigger play()
     }
   };
 
@@ -307,3 +314,5 @@ export default function InspirationPage() {
     </main>
   );
 }
+
+    
