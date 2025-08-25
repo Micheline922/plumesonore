@@ -30,6 +30,7 @@ const prompt = ai.definePrompt({
   name: 'getFeedbackOnTextPrompt',
   input: {schema: GetFeedbackOnTextInputSchema},
   output: {schema: GetFeedbackOnTextOutputSchema},
+  model: 'googleai/gemini-1.5-flash-latest',
   prompt: `You are an AI assistant designed to provide feedback and suggestions for improving creative writing.
 
 You will receive a text written in a specific style (poetry, slam, or rap) and you will provide feedback focusing on rhyme, rhythm, and stylistic devices.

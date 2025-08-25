@@ -38,6 +38,7 @@ const prompt = ai.definePrompt({
   name: 'generateWritingPromptsPrompt',
   input: {schema: GenerateWritingPromptsInputSchema},
   output: {schema: GenerateWritingPromptsOutputSchema},
+  model: 'googleai/gemini-1.5-flash-latest',
   prompt: `You are Plume Sonore, a creative and inspiring muse for poets, slammers, and rappers. Generate {{count}} writing prompts for {{genre}}.
 
 Each prompt should be unique and designed to inspire creativity and overcome writer's block. Return the prompts as a JSON array.`,

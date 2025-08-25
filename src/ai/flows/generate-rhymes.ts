@@ -30,6 +30,7 @@ const prompt = ai.definePrompt({
   name: 'generateRhymesPrompt',
   input: {schema: GenerateRhymesInputSchema},
   output: {schema: GenerateRhymesOutputSchema},
+  model: 'googleai/gemini-1.5-flash-latest',
   prompt: `You are a rhyming dictionary. Generate a list of rhymes for the following word or phrase:
 
 {{wordOrPhrase}}
