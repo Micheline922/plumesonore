@@ -68,6 +68,13 @@ export const inspirationSounds = [
   { title: 'Feu de cheminée', hint: 'fireplace crackling', duration: '4:02', src: 'https://cdn.pixabay.com/download/audio/2021/08/04/audio_3661085f18.mp3' },
 ];
 
+export const inspirationInstrumentals = [
+  { title: 'Lofi Chill', hint: 'lofi study beats', duration: '2:18', src: 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_18b7626a49.mp3' },
+  { title: 'Calm Background', hint: 'ambient relaxing music', duration: '2:58', src: 'https://cdn.pixabay.com/download/audio/2023/05/09/audio_d9239ab9c5.mp3' },
+  { title: 'Reflective Mood', hint: 'piano thoughtful cinematic', duration: '2:38', src: 'https://cdn.pixabay.com/download/audio/2022/11/22/audio_2c4a92c159.mp3' },
+  { title: 'Acoustic Motivation', hint: 'acoustic guitar inspirational', duration: '2:22', src: 'https://cdn.pixabay.com/download/audio/2022/01/18/audio_b722a61353.mp3' },
+];
+
 export const inspirationTexts = [
   { title: 'Demain, dès l\'aube...', author: 'Victor Hugo', genre: 'Poésie' },
   { title: 'Je me souviens', author: 'Georges Perec', genre: 'Prose' },
