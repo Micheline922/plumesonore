@@ -29,29 +29,82 @@ export const learningTracks = [
 
 export const communityPosts = [
   {
+    id: 1,
     author: 'Lyric_Leo',
     avatar: 'https://placehold.co/40x40.png',
     time: 'il y a 2 heures',
     text: "Premier jet d'un texte sur le temps qui passe. Qu'en pensez-vous ?\n\n'Les horloges se moquent de nos prières,\ngoutte à goutte, le sablier s'égrène.\nHier n'est qu'un souvenir dans la bruine,\ndemain, une promesse qu'on dessine.'",
     likes: 12,
-    comments: 4,
+    commentsCount: 2,
+    comments: [
+        { author: 'Slam_Sofia', text: "J'adore la dernière phrase, très poétique !" },
+        { author: 'Rap_Ryad', text: "Puissant. La métaphore du sablier est bien trouvée." }
+    ]
   },
   {
+    id: 2,
     author: 'Slam_Sofia',
     avatar: 'https://placehold.co/40x40.png',
     time: 'il y a 5 heures',
     text: "Besoin de feedback sur ce passage, je trouve que le rythme n'est pas encore parfait.\n\n'La ville respire le béton, une jungle de verre et d'acier / Où les rêves se perdent dans le bruit des klaxons pressés.'",
     likes: 25,
-    comments: 8,
+    commentsCount: 1,
+    comments: [
+        { author: 'Lyric_Leo', text: "Le rythme est bon, peut-être juste marquer une pause après 'béton' ?" }
+    ]
   },
   {
+    id: 3,
     author: 'Rap_Ryad',
     avatar: 'https://placehold.co/40x40.png',
     time: 'il y a 1 jour',
     text: 'Cherche un(e) artiste pour une collaboration sur un morceau. Thème : la résilience. Envoyez-moi vos textes !',
-    likes: 3,
-    comments: 1,
+    likes: 8,
+    commentsCount: 1,
+    comments: [
+      { author: 'PoeteAnonyme', text: "Super initiative, je t'envoie un MP." }
+    ]
   },
+   {
+    id: 4,
+    author: 'MuseUrbaine',
+    avatar: 'https://placehold.co/40x40.png',
+    time: 'il y a 2 jours',
+    text: "Je sèche sur un thème... des idées ? J'ai envie d'écrire sur quelque chose de puissant, de viscéral.",
+    likes: 15,
+    commentsCount: 3,
+    comments: [
+        { author: 'Lyric_Leo', text: "La nostalgie de l'enfance ?" },
+        { author: 'Slam_Sofia', text: "La colère face à l'injustice, ça marche toujours." },
+        { author: 'Rap_Ryad', text: "L'ambition dévorante." },
+    ]
+  },
+   {
+    id: 5,
+    author: 'PlumeDeNuit',
+    avatar: 'https://placehold.co/40x40.png',
+    time: 'il y a 3 jours',
+    text: "Petit poème du soir :\n\n'La lune est un projecteur blafard\nSur la scène de nos boulevards\nOù chaque ombre danse un ballet\nSilencieux et désolé.'",
+    likes: 42,
+    commentsCount: 2,
+    comments: [
+        { author: 'Slam_Sofia', text: 'Magnifique et mélancolique. Bravo.' },
+        { author: 'MuseUrbaine', text: 'Très belle image !' }
+    ]
+  },
+   {
+    id: 6,
+    author: 'PoeteAnonyme',
+    avatar: 'https://placehold.co/40x40.png',
+    time: 'il y a 4 jours',
+    text: "Comment faites-vous pour trouver votre flow en rap ? Des conseils pour un débutant ?",
+    likes: 5,
+    commentsCount: 2,
+    comments: [
+        { author: 'Rap_Ryad', text: "Écoute beaucoup de sons, essaie d'imiter les flows que tu aimes, et après trouve le tien. C'est beaucoup de pratique." },
+        { author: 'Lyric_Leo', text: "Ne te concentre pas que sur la rime, le rythme des mots est tout aussi important. Lis tes textes à voix haute." }
+    ]
+  }
 ];
 
 export const inspirationQuotes = [
@@ -59,20 +112,6 @@ export const inspirationQuotes = [
   { quote: 'Le slam, ce n’est rien d’autre que de la poésie dite.', author: 'Grand Corps Malade' },
   { quote: "Le rap, c'est la poésie de la rue.", author: 'Kery James' },
   { quote: "L'inspiration existe, mais elle doit vous trouver au travail.", author: 'Pablo Picasso' },
-];
-
-export const inspirationSounds = [
-  { title: 'Pluie sur une fenêtre', hint: 'rain window', duration: '3:45', src: 'https://cdn.pixabay.com/download/audio/2022/08/10/audio_2c24c22cb1.mp3' },
-  { title: 'Café animé', hint: 'cafe chatter', duration: '5:10', src: 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_7484d74a8a.mp3' },
-  { title: 'Métro parisien', hint: 'subway train', duration: '2:30', src: 'https://cdn.pixabay.com/download/audio/2022/03/02/audio_13a1b32a76.mp3' },
-  { title: 'Feu de cheminée', hint: 'fireplace crackling', duration: '4:02', src: 'https://cdn.pixabay.com/download/audio/2021/08/04/audio_3661085f18.mp3' },
-];
-
-export const inspirationInstrumentals = [
-  { title: 'Lofi Chill', hint: 'lofi study beats', duration: '2:18', src: 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_18b7626a49.mp3' },
-  { title: 'Calm Background', hint: 'ambient relaxing music', duration: '2:58', src: 'https://cdn.pixabay.com/download/audio/2023/05/09/audio_d9239ab9c5.mp3' },
-  { title: 'Reflective Mood', hint: 'piano thoughtful cinematic', duration: '2:38', src: 'https://cdn.pixabay.com/download/audio/2022/11/22/audio_2c4a92c159.mp3' },
-  { title: 'Acoustic Motivation', hint: 'acoustic guitar inspirational', duration: '2:22', src: 'https://cdn.pixabay.com/download/audio/2022/01/18/audio_b722a61353.mp3' },
 ];
 
 export const inspirationTexts = [

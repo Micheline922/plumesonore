@@ -7,24 +7,45 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { communityPosts as initialPosts } from '@/lib/placeholder-data';
 import { Heart, MessageCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
+import { Send } from 'lucide-react';
+
+interface Comment {
+  author: string;
+  text: string;
+}
 
 interface Post {
+  id: number;
   author: string;
   avatar: string;
   time: string;
   text: string;
   likes: number;
-  comments: number;
+  commentsCount: number;
+  comments: Comment[];
   liked?: boolean;
 }
 
 export default function CommunityPage() {
   const [posts, setPosts] = useState<Post[]>(initialPosts);
+  const [activeCommentSection, setActiveCommentSection] = useState<number | null>(null);
+  const [commentText, setCommentText] = useState('');
+  const [currentUser, setCurrentUser] = useState({ artistName: 'Artiste Anonyme' });
 
-  const toggleLike = (index: number) => {
+  useState(() => {
+    const user = localStorage.getItem('plume-sonore-user');
+    if (user) {
+      setCurrentUser(JSON.parse(user));
+    }
+  });
+
+
+  const toggleLike = (id: number) => {
     setPosts(
-      posts.map((post, i) => {
-        if (i === index) {
+      posts.map((post) => {
+        if (post.id === id) {
           return {
             ...post,
             likes: post.liked ? post.likes - 1 : post.likes + 1,
@@ -35,6 +56,34 @@ export default function CommunityPage() {
       })
     );
   };
+
+  const handleCommentToggle = (id: number) => {
+    if (activeCommentSection === id) {
+      setActiveCommentSection(null);
+    } else {
+      setActiveCommentSection(id);
+    }
+  }
+
+  const handleAddComment = (id: number) => {
+    if(!commentText.trim()) return;
+
+    setPosts(posts.map(post => {
+      if(post.id === id) {
+        const newComment = {
+          author: currentUser.artistName,
+          text: commentText
+        };
+        return {
+          ...post,
+          comments: [...post.comments, newComment],
+          commentsCount: post.commentsCount + 1
+        }
+      }
+      return post;
+    }));
+    setCommentText('');
+  }
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
@@ -47,8 +96,8 @@ export default function CommunityPage() {
         </div>
       </div>
       <div className="mx-auto w-full max-w-2xl space-y-6">
-        {posts.map((post, index) => (
-          <Card key={index}>
+        {posts.map((post) => (
+          <Card key={post.id}>
             <CardHeader className="flex flex-row items-center gap-4">
               <Avatar>
                 <AvatarImage src={post.avatar} alt={`@${post.author}`} data-ai-hint="person portrait" />
@@ -62,20 +111,53 @@ export default function CommunityPage() {
             <CardContent>
               <p className="whitespace-pre-wrap text-sm">{post.text}</p>
             </CardContent>
-            <CardFooter className="flex gap-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="flex items-center gap-2"
-                onClick={() => toggleLike(index)}
-              >
-                <Heart className={cn('h-4 w-4', post.liked && 'fill-destructive text-destructive')} />
-                <span>{post.likes}</span>
-              </Button>
-              <Button variant="ghost" size="sm" className="flex items-center gap-2">
-                <MessageCircle className="h-4 w-4" />
-                <span>{post.comments}</span>
-              </Button>
+            <CardFooter className="flex-col items-start">
+                <div className="flex gap-4">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="flex items-center gap-2"
+                        onClick={() => toggleLike(post.id)}
+                    >
+                        <Heart className={cn('h-4 w-4', post.liked && 'fill-destructive text-destructive')} />
+                        <span>{post.likes}</span>
+                    </Button>
+                    <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="flex items-center gap-2"
+                        onClick={() => handleCommentToggle(post.id)}
+                    >
+                        <MessageCircle className="h-4 w-4" />
+                        <span>{post.commentsCount}</span>
+                    </Button>
+                </div>
+                 {activeCommentSection === post.id && (
+                  <div className="w-full mt-4 space-y-4 pt-4 border-t">
+                    {post.comments.map((comment, index) => (
+                       <div key={index} className="flex items-start gap-3 text-sm">
+                           <Avatar className="w-8 h-8 border">
+                                <AvatarFallback>{comment.author.charAt(0)}</AvatarFallback>
+                           </Avatar>
+                           <div className="bg-muted p-3 rounded-lg w-full">
+                               <p className="font-semibold text-xs">{comment.author}</p>
+                               <p className="text-muted-foreground">{comment.text}</p>
+                           </div>
+                       </div>
+                    ))}
+                     <div className="flex items-center gap-2">
+                        <Input 
+                          placeholder="Ajouter un commentaire..." 
+                          value={commentText}
+                          onChange={(e) => setCommentText(e.target.value)}
+                          onKeyPress={(e) => e.key === 'Enter' && handleAddComment(post.id)}
+                        />
+                        <Button size="icon" onClick={() => handleAddComment(post.id)}>
+                            <Send className="h-4 w-4" />
+                        </Button>
+                    </div>
+                  </div>
+                )}
             </CardFooter>
           </Card>
         ))}
