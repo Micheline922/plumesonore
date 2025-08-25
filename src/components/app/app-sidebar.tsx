@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { usePathname } from 'next/navigation';
-import { Feather, GraduationCap, LayoutDashboard, Lightbulb, Mic, NotebookPen, Sparkles, Users, LogOut } from 'lucide-react';
+import { Feather, GraduationCap, LayoutDashboard, Lightbulb, Mic, NotebookPen, Sparkles, Users, LogOut, Library } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -20,6 +20,7 @@ import { Button } from '../ui/button';
 const menuItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/writing-pad', label: "Atelier d'écriture", icon: NotebookPen },
+  { href: '/my-creations', label: 'Mes Créations', icon: Library },
   { href: '/ai-tools', label: 'Assistant IA', icon: Sparkles },
   { href: '/learning', label: 'Parcours', icon: GraduationCap },
   { href: '/community', label: 'Communauté', icon: Users },
