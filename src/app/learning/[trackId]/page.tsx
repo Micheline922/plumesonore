@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { learningAssistant, LearningAssistantOutput } from '@/ai/flows/learning-assistant';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { cn } from '@/lib/utils';
+import { Separator } from '@/components/ui/separator';
 
 type AIInteractionProps = {
     trackTitle: string;
@@ -188,17 +189,18 @@ export default function LearningTrackPage() {
             </div>
         </div>
 
-        <Card>
-            <CardHeader>
-                <CardTitle className="font-headline">Contenu du cours</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div 
-                    className="prose prose-p:text-muted-foreground dark:prose-invert max-w-none [&_h4]:font-headline [&_h4]:font-semibold [&_h4]:text-foreground [&_p]:my-2"
-                    dangerouslySetInnerHTML={{ __html: track.content }}
-                />
-            </CardContent>
-        </Card>
+        <div 
+            className="prose prose-p:text-muted-foreground dark:prose-invert max-w-none 
+                       [&_h3]:font-headline [&_h3]:text-2xl [&_h3]:font-bold [&_h3]:text-primary [&_h3]:mt-10 [&_h3]:mb-4
+                       [&_h4]:font-headline [&_h4]:text-xl [&_h4]:font-semibold [&_h4]:text-foreground [&_h4]:mt-6 [&_h4]:mb-2
+                       [&_p]:my-3 [&_p]:leading-relaxed
+                       [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:space-y-2
+                       [&_strong]:text-foreground/90
+                       [&_hr]:my-10 [&_hr]:border-border"
+            dangerouslySetInnerHTML={{ __html: track.content }}
+        />
+        
+        <Separator className="my-12" />
 
         <AITutor trackTitle={track.title} />
 
