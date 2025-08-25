@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { learningAssistant, LearningAssistantOutput } from '@/ai/flows/learning-assistant';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { cn } from '@/lib/utils';
+import React from 'react';
 
 type AIInteractionProps = {
     trackTitle: string;
@@ -165,15 +166,7 @@ function AITutor({ trackTitle }: AIInteractionProps) {
     );
 }
 
-
-export default function LearningTrackPage({ params }: { params: { trackId: string } }) {
-  const trackId = parseInt(params.trackId, 10);
-  const track = learningTracks[trackId];
-
-  if (isNaN(trackId) || !track) {
-    notFound();
-  }
-
+function LearningTrackClientPage({ track }: { track: (typeof learningTracks)[0] }) {
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <div className="max-w-4xl mx-auto w-full">
@@ -206,4 +199,16 @@ export default function LearningTrackPage({ params }: { params: { trackId: strin
       </div>
     </main>
   );
+}
+
+
+export default function LearningTrackPage({ params }: { params: { trackId: string } }) {
+  const trackId = parseInt(params.trackId, 10);
+  const track = learningTracks[trackId];
+
+  if (isNaN(trackId) || !track) {
+    notFound();
+  }
+
+  return <LearningTrackClientPage track={track} />;
 }
