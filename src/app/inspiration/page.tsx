@@ -127,17 +127,25 @@ export default function InspirationPage() {
 
     const onPlay = () => setIsPlaying(true);
     const onPause = () => setIsPlaying(false);
-    const onEnded = () => setIsPlaying(false);
+    const onEnded = () => {
+      setIsPlaying(false);
+      setActiveMedia(null);
+    };
+    const onCanPlay = () => {
+      audio.play().catch(e => console.error("Error playing audio:", e));
+    }
     
     audio.addEventListener('play', onPlay);
     audio.addEventListener('pause', onPause);
     audio.addEventListener('ended', onEnded);
+    audio.addEventListener('canplay', onCanPlay);
 
     // Cleanup
     return () => {
       audio.removeEventListener('play', onPlay);
       audio.removeEventListener('pause', onPause);
       audio.removeEventListener('ended', onEnded);
+      audio.removeEventListener('canplay', onCanPlay);
       audio.pause();
     };
   }, []);
@@ -155,7 +163,7 @@ export default function InspirationPage() {
     } else {
       setActiveMedia({ src, title });
       audio.src = src;
-      audio.play().catch(e => console.error("Error playing audio:", e));
+      // The 'canplay' event listener will trigger play.
     }
   };
 
@@ -174,9 +182,8 @@ export default function InspirationPage() {
       <InspirationGenerator />
 
       <Tabs defaultValue="quotes" className="w-full">
-        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-4">
+        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3">
           <TabsTrigger value="quotes">Citations</TabsTrigger>
-          <TabsTrigger value="sounds">Sons d'ambiance</TabsTrigger>
           <TabsTrigger value="instrumentals">Instrumentaux</TabsTrigger>
           <TabsTrigger value="texts">Textes Célèbres</TabsTrigger>
         </TabsList>
@@ -194,51 +201,6 @@ export default function InspirationPage() {
                 </CardFooter>
               </Card>
             ))}
-          </div>
-        </TabsContent>
-        <TabsContent value="sounds">
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {inspirationSounds.map((sound) => {
-              const isActive = activeMedia?.src === sound.src;
-              const isCurrentlyPlaying = isActive && isPlaying;
-              return (
-              <Card
-                key={sound.title}
-                className="cursor-pointer hover:border-primary transition-colors"
-                onClick={() => toggleMedia(sound.src, sound.title)}
-              >
-                <CardHeader className="p-0 relative">
-                  <Image
-                    src={`https://placehold.co/600x400.png`}
-                    alt={sound.title}
-                    width={600}
-                    height={400}
-                    className="rounded-t-lg object-cover aspect-video"
-                    data-ai-hint={sound.hint}
-                  />
-                   {isCurrentlyPlaying && (
-                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-t-lg">
-                      <Pause className="h-12 w-12 text-white" />
-                    </div>
-                  )}
-                  {isActive && !isCurrentlyPlaying && (
-                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-t-lg">
-                        <Play className="h-12 w-12 text-white" />
-                    </div>
-                  )}
-                </CardHeader>
-                <CardContent className="p-4">
-                  <CardTitle className="font-headline text-lg">{sound.title}</CardTitle>
-                </CardContent>
-                <CardFooter className="flex justify-between items-center text-sm text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    {isCurrentlyPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                    <span>{isCurrentlyPlaying ? 'En cours' : 'Écouter'}</span>
-                  </div>
-                  <span>{sound.duration}</span>
-                </CardFooter>
-              </Card>
-            )})}
           </div>
         </TabsContent>
          <TabsContent value="instrumentals">
