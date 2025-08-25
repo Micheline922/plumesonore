@@ -6,24 +6,43 @@ export const learningTracks = [
     description: 'Apprenez les bases du rythme, de la rime et de la performance.',
     duration: '4 semaines',
     level: 'Débutant',
+    content: `
+      <h4>Semaine 1 : L'écriture</h4>
+      <p>Trouver sa voix, choisir un thème, structurer son texte.</p>
+      <h4>Semaine 2 : Le Rythme</h4>
+      <p>Jouer avec les sonorités, les pauses et le débit.</p>
+      <h4>Semaine 3 : La Voix</h4>
+      <p>Apprendre à projeter sa voix, travailler l'articulation.</p>
+       <h4>Semaine 4 : La Scène</h4>
+      <p>Gérer le trac, occuper l'espace, interagir avec le public.</p>
+    `
   },
   {
     title: 'Maîtriser le Storytelling en Rap',
     description: 'Transformez vos expériences en récits captivants.',
     duration: '6 semaines',
     level: 'Intermédiaire',
+    content: `
+      <p>Ce cours vous apprendra à construire une narration forte dans vos morceaux de rap, en créant des personnages, des arcs narratifs et des images puissantes.</p>
+    `
   },
   {
     title: 'Figures de Style Avancées',
     description: 'Explorez métaphores, allitérations et assonances pour enrichir vos textes.',
     duration: '3 semaines',
     level: 'Avancé',
+    content: `
+      <p>Plongez au coeur de la langue française pour donner plus de relief et de profondeur à vos écrits. Un voyage au pays des mots pour les amoureux de la technique.</p>
+    `
   },
   {
     title: 'Défi Quotidien : Le Mot du Jour',
     description: 'Un nouveau mot chaque jour pour inspirer un court poème ou une punchline.',
     duration: 'Quotidien',
     level: 'Tous niveaux',
+    content: `
+      <p>Chaque jour, un nouveau défi. L'exercice parfait pour entretenir sa créativité, expérimenter sans pression et enrichir son vocabulaire.</p>
+    `
   },
 ];
 
