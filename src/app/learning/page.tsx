@@ -25,11 +25,11 @@ export default function LearningPage() {
               </CardHeader>
               <CardContent className="flex-grow">
                  <div
-                    className="prose prose-sm prose-p:text-muted-foreground dark:prose-invert"
+                    className="prose prose-sm prose-p:text-muted-foreground dark:prose-invert max-w-none [&_h4]:font-headline [&_h4]:font-semibold [&_h4]:text-foreground"
                     dangerouslySetInnerHTML={{ __html: track.content }}
                   />
               </CardContent>
-              <CardFooter className="flex justify-between text-sm text-muted-foreground">
+              <CardFooter className="flex justify-between text-sm text-muted-foreground mt-auto pt-4">
                 <div className="flex items-center gap-1">
                   <Clock className="h-4 w-4" />
                   <span>{track.duration}</span>

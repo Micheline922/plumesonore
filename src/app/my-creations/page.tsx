@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Trash2, Mic, FileText } from 'lucide-react';
+import { Trash2, Mic, FileText, Pencil } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,6 +15,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import Link from 'next/link';
 
 interface Creation {
   id: number;
@@ -29,9 +30,12 @@ export default function MyCreationsPage() {
   const [creations, setCreations] = useState<Creation[]>([]);
 
   useEffect(() => {
+    // We sort creations by date, most recent first
     const storedCreations = localStorage.getItem('plume-sonore-creations');
     if (storedCreations) {
-      setCreations(JSON.parse(storedCreations));
+      const parsedCreations = JSON.parse(storedCreations);
+      parsedCreations.sort((a: Creation, b: Creation) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      setCreations(parsedCreations);
     }
   }, []);
 
@@ -54,8 +58,8 @@ export default function MyCreationsPage() {
           {creations.map((creation) => (
             <Card key={creation.id} className="flex flex-col">
               <CardHeader>
-                <div className="flex items-start justify-between">
-                    <div>
+                <div className="flex items-start justify-between gap-4">
+                    <div className='flex-grow'>
                         <CardTitle className="font-headline flex items-center gap-2">
                         {creation.type === 'audio' ? <Mic className="h-5 w-5" /> : <FileText className="h-5 w-5" />}
                         {creation.title}
@@ -99,16 +103,38 @@ export default function MyCreationsPage() {
                     </audio>
                 )}
               </CardContent>
+              <CardFooter>
+                 <Button variant="outline" asChild size="sm">
+                   <Link href={creation.type === 'text' ? '/writing-pad' : '/stage'}>
+                     <Pencil className="mr-2 h-4 w-4" />
+                     Voir / Modifier
+                   </Link>
+                 </Button>
+              </CardFooter>
             </Card>
           ))}
         </div>
       ) : (
-        <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm">
-          <div className="flex flex-col items-center gap-1 text-center">
+        <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm py-16">
+          <div className="flex flex-col items-center gap-2 text-center">
             <h3 className="text-2xl font-bold tracking-tight">Aucune création pour le moment</h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground max-w-sm">
               Commencez à écrire ou enregistrez une performance pour voir vos œuvres apparaître ici.
             </p>
+            <div className="flex gap-4 mt-4">
+                 <Button asChild>
+                    <Link href="/writing-pad">
+                        <FileText className="mr-2 h-4 w-4" />
+                        Écrire un texte
+                    </Link>
+                </Button>
+                <Button asChild variant="secondary">
+                     <Link href="/stage">
+                        <Mic className="mr-2 h-4 w-4" />
+                        Enregistrer une performance
+                    </Link>
+                </Button>
+            </div>
           </div>
         </div>
       )}

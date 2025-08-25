@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, GraduationCap, Lightbulb, Mic, NotebookPen, Sparkles, Users } from 'lucide-react';
+import { ArrowRight, GraduationCap, Lightbulb, Mic, NotebookPen, Sparkles, Users, Library } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -10,6 +10,13 @@ const featureCards = [
     href: '/writing-pad',
     icon: NotebookPen,
     cta: 'Commencer à écrire',
+  },
+  {
+    title: 'Mes Créations',
+    description: 'Retrouvez toutes vos œuvres, textes et enregistrements.',
+    href: '/my-creations',
+    icon: Library,
+    cta: 'Voir mes créations',
   },
   {
     title: 'Assistant IA',
@@ -38,13 +45,6 @@ const featureCards = [
     href: '/stage',
     icon: Mic,
     cta: 'Monter sur scène',
-  },
-  {
-    title: "Banque d'Inspiration",
-    description: "Citations, sons d'ambiance et textes pour ne jamais être à court d'idées.",
-    href: '/inspiration',
-    icon: Lightbulb,
-    cta: "Trouver l'inspiration",
   },
 ];
 

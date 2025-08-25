@@ -1,8 +1,7 @@
-
 'use client';
 
-import { useState } from 'react';
-import { notFound, useParams } from 'next/navigation';
+import React, { useState } from 'react';
+import { useParams, notFound } from 'next/navigation';
 import { learningTracks } from '@/lib/placeholder-data';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,7 +13,6 @@ import { useToast } from '@/hooks/use-toast';
 import { learningAssistant, LearningAssistantOutput } from '@/ai/flows/learning-assistant';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { cn } from '@/lib/utils';
-import React from 'react';
 
 type AIInteractionProps = {
     trackTitle: string;
@@ -196,7 +194,7 @@ export default function LearningTrackPage() {
             </CardHeader>
             <CardContent>
                 <div 
-                    className="prose prose-p:text-muted-foreground dark:prose-invert max-w-none"
+                    className="prose prose-p:text-muted-foreground dark:prose-invert max-w-none [&_h4]:font-headline [&_h4]:font-semibold [&_h4]:text-foreground [&_p]:my-2"
                     dangerouslySetInnerHTML={{ __html: track.content }}
                 />
             </CardContent>
