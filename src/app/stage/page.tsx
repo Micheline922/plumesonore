@@ -4,7 +4,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mic, Pause, Square, Save, CircleDot, Music, Play, StopCircle } from 'lucide-react';
+import { Mic, Pause, Square, Save, CircleDot } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -19,8 +19,6 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { instrumentalTracks } from '@/lib/placeholder-data';
-import { Separator } from '@/components/ui/separator';
 
 type StageState = 'idle' | 'recording' | 'paused' | 'finished';
 
@@ -44,26 +42,7 @@ export default function StagePage() {
   const audioChunksRef = useRef<Blob[]>([]);
   const { toast } = useToast();
 
-  const [currentInstrumental, setCurrentInstrumental] = useState<{src: string, isPlaying: boolean} | null>(null);
-  const instrumentalAudioRef = useRef<HTMLAudioElement | null>(null);
-
   const DURATION = 300; // 5 minutes performance
-
-  useEffect(() => {
-    instrumentalAudioRef.current = new Audio();
-    instrumentalAudioRef.current.addEventListener('ended', () => {
-        setCurrentInstrumental(prev => prev ? { ...prev, isPlaying: false } : null);
-    });
-
-    return () => {
-        if (instrumentalAudioRef.current) {
-            instrumentalAudioRef.current.pause();
-            instrumentalAudioRef.current.removeEventListener('ended', () => {});
-            instrumentalAudioRef.current = null;
-        }
-    }
-  }, []);
-
 
   useEffect(() => {
     if (stage === 'recording') {
@@ -130,10 +109,6 @@ export default function StagePage() {
   const handleStart = () => {
     setProgress(0);
     startRecording();
-    if(instrumentalAudioRef.current?.src && instrumentalAudioRef.current.paused) {
-        instrumentalAudioRef.current.play();
-        setCurrentInstrumental(prev => prev ? { ...prev, isPlaying: true } : null);
-    }
   };
 
   const handlePause = () => {
@@ -141,17 +116,9 @@ export default function StagePage() {
     if (stage === 'paused') {
       mediaRecorderRef.current.resume();
       setStage('recording');
-       if(instrumentalAudioRef.current?.src && instrumentalAudioRef.current.paused) {
-        instrumentalAudioRef.current.play();
-        setCurrentInstrumental(prev => prev ? { ...prev, isPlaying: true } : null);
-      }
     } else {
       mediaRecorderRef.current.pause();
       setStage('paused');
-      if(instrumentalAudioRef.current?.src) {
-        instrumentalAudioRef.current.pause();
-        setCurrentInstrumental(prev => prev ? { ...prev, isPlaying: false } : null);
-      }
     }
   };
   
@@ -159,24 +126,14 @@ export default function StagePage() {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
         mediaRecorderRef.current.stop();
     }
-    if (instrumentalAudioRef.current) {
-        instrumentalAudioRef.current.pause();
-        instrumentalAudioRef.current.currentTime = 0;
-    }
     setStage('finished');
     setProgress(100);
-    setCurrentInstrumental(prev => prev ? { ...prev, isPlaying: false } : null);
   }
 
   const handleReset = () => {
     setStage('idle');
     setProgress(0);
     setAudioURL('');
-    if (instrumentalAudioRef.current) {
-        instrumentalAudioRef.current.pause();
-        instrumentalAudioRef.current.src = '';
-    }
-    setCurrentInstrumental(null);
   }
 
   const handleSave = () => {
@@ -211,24 +168,6 @@ export default function StagePage() {
     setPerformanceTitle('');
     handleReset();
   }
-
-  const toggleInstrumental = (trackSrc: string) => {
-    if (!instrumentalAudioRef.current) return;
-
-    if (currentInstrumental?.src === trackSrc) {
-        if(currentInstrumental.isPlaying) {
-            instrumentalAudioRef.current.pause();
-            setCurrentInstrumental(prev => prev ? { ...prev, isPlaying: false } : null);
-        } else {
-            instrumentalAudioRef.current.play();
-            setCurrentInstrumental(prev => prev ? { ...prev, isPlaying: true } : null);
-        }
-    } else {
-        instrumentalAudioRef.current.src = trackSrc;
-        instrumentalAudioRef.current.play();
-        setCurrentInstrumental({src: trackSrc, isPlaying: true});
-    }
-  };
 
   const renderButtons = () => {
     switch (stage) {
@@ -291,30 +230,6 @@ export default function StagePage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-           
-           <div className="space-y-4">
-            <Separator />
-             <div className="flex items-center gap-2">
-                <Music className="h-5 w-5 text-muted-foreground" />
-                <h3 className="font-headline text-lg">Choisir un instrumental</h3>
-             </div>
-             <div className="space-y-2 text-left">
-                {instrumentalTracks.map((track) => (
-                    <Button 
-                        key={track.src} 
-                        variant={currentInstrumental?.src === track.src ? "secondary" : "ghost"}
-                        className="w-full justify-start"
-                        onClick={() => toggleInstrumental(track.src)}
-                        disabled={stage !== 'idle'}
-                    >
-                        {currentInstrumental?.src === track.src && currentInstrumental.isPlaying ? <StopCircle className="mr-2 h-4 w-4" /> : <Play className="mr-2 h-4 w-4" />}
-                        {track.title}
-                    </Button>
-                ))}
-             </div>
-             <Separator />
-           </div>
-           
            {(stage === 'recording' || stage === 'paused') && (
             <div className="space-y-2">
               <Progress value={progress} />
@@ -359,3 +274,5 @@ export default function StagePage() {
     </>
   );
 }
+
+    
