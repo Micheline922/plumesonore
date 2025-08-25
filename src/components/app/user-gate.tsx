@@ -13,6 +13,9 @@ export function UserGate({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const userData = localStorage.getItem('plume-sonore-user');
+    const hideSidebar = pathname === '/login';
+    setOpen(!hideSidebar);
+
     if (!userData) {
       if (pathname !== '/login') {
         router.replace('/login');
@@ -26,7 +29,7 @@ export function UserGate({ children }: { children: React.ReactNode }) {
         setIsVerified(true);
       }
     }
-  }, [router, pathname]);
+  }, [router, pathname, setOpen]);
 
   if (!isVerified) {
     // Show a loading state or skeleton screen while checking auth
@@ -44,13 +47,6 @@ export function UserGate({ children }: { children: React.ReactNode }) {
         </main>
     )
   }
-
-  // Hide sidebar on login page
-  const hideSidebar = pathname === '/login';
-  useEffect(() => {
-    setOpen(!hideSidebar);
-  }, [hideSidebar, setOpen])
-
 
   return <>{children}</>;
 }
