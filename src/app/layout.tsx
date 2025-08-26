@@ -1,8 +1,9 @@
+
 import type { Metadata } from 'next';
 import { AppSidebar } from '@/components/app/app-sidebar';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { Toaster } from '@/components/ui/toaster';
-import { UserGate } from '@/components/app/user-gate';
+import { UserGate, AuthProvider } from '@/components/app/user-gate';
 import { AppHeader } from '@/components/app/app-header';
 import './globals.css';
 
@@ -27,16 +28,18 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body antialiased">
-        <SidebarProvider>
-          <UserGate>
-              <AppSidebar />
-              <div className="flex flex-1 flex-col">
-                <AppHeader />
-                <SidebarInset>{children}</SidebarInset>
-              </div>
-          </UserGate>
-        </SidebarProvider>
-        <Toaster />
+        <AuthProvider>
+            <SidebarProvider>
+            <UserGate>
+                <AppSidebar />
+                <div className="flex flex-1 flex-col">
+                    <AppHeader />
+                    <SidebarInset>{children}</SidebarInset>
+                </div>
+            </UserGate>
+            </SidebarProvider>
+            <Toaster />
+        </AuthProvider>
       </body>
     </html>
   );

@@ -1,41 +1,27 @@
+
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Save } from 'lucide-react';
+import { Save, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/components/app/user-gate';
+import { db } from '@/lib/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
-interface Creation {
-    id: number;
-    title: string;
-    content: string;
-    type: 'text';
-    date: string;
-}
-
-interface User {
-    artistName: string;
-    email: string;
-}
 
 export default function WritingPadPage() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const { user } = useAuth();
   const { toast } = useToast();
 
-  useEffect(() => {
-    const userRaw = localStorage.getItem('plume-sonore-user');
-    if (userRaw) {
-      setCurrentUser(JSON.parse(userRaw));
-    }
-  }, []);
-
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!title || !content) {
       toast({
         title: 'Champs manquants',
@@ -45,37 +31,45 @@ export default function WritingPadPage() {
       return;
     }
 
-    if (!currentUser) {
+    if (!user) {
        toast({
         title: 'Utilisateur non connecté',
-        description: 'Impossible de sauvegarder sans être connecté.',
+        description: 'Vous devez être connecté pour sauvegarder une création.',
         variant: 'destructive',
       });
       return;
     }
-
-    const newCreation: Creation = {
-      id: Date.now(),
-      title,
-      content,
-      type: 'text',
-      date: new Date().toISOString(),
-    };
-
-    const storageKey = `plume-sonore-creations-${currentUser.email}`;
-    const existingCreationsRaw = localStorage.getItem(storageKey);
-    const existingCreations: Creation[] = existingCreationsRaw ? JSON.parse(existingCreationsRaw) : [];
     
-    localStorage.setItem(storageKey, JSON.stringify([newCreation, ...existingCreations]));
+    setIsLoading(true);
 
-    toast({
-        title: 'Sauvegardé !',
-        description: 'Votre création a été ajoutée à votre bibliothèque.',
-    });
+    try {
+        await addDoc(collection(db, 'creations'), {
+            authorId: user.uid,
+            authorName: user.displayName,
+            title,
+            content,
+            type: 'text',
+            createdAt: serverTimestamp(),
+        });
 
-    // Optionnel: vider les champs après sauvegarde
-    // setTitle('');
-    // setContent('');
+        toast({
+            title: 'Sauvegardé !',
+            description: 'Votre création a été ajoutée à votre bibliothèque.',
+        });
+
+        setTitle('');
+        setContent('');
+
+    } catch(error) {
+        console.error("Error saving creation: ", error);
+        toast({
+            title: 'Erreur',
+            description: 'Une erreur est survenue lors de la sauvegarde.',
+            variant: 'destructive',
+        });
+    } finally {
+        setIsLoading(false);
+    }
   };
 
 
@@ -96,6 +90,7 @@ export default function WritingPadPage() {
               placeholder="Le titre de votre œuvre..." 
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+              disabled={isLoading}
             />
           </div>
           <div className="space-y-2">
@@ -106,12 +101,13 @@ export default function WritingPadPage() {
               className="min-h-[40vh] text-base"
               value={content}
               onChange={(e) => setContent(e.target.value)}
+              disabled={isLoading}
             />
           </div>
         </CardContent>
         <CardFooter>
-          <Button onClick={handleSave}>
-            <Save className="mr-2 h-4 w-4" />
+          <Button onClick={handleSave} disabled={isLoading}>
+            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
             Sauvegarder
           </Button>
         </CardFooter>
