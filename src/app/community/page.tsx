@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Heart, MessageCircle, Send, Mail, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
@@ -15,12 +15,13 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-  DialogDescription
+  DialogDescription as DialogDescriptionComponent
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { generateChatResponse } from '@/ai/flows/generate-chat-response';
 import { communityPosts as placeholderPosts } from '@/lib/placeholder-data';
 import { useAuth } from '@/components/app/user-gate';
+import { Textarea } from '@/components/ui/textarea';
 
 
 interface Comment {
@@ -112,9 +113,9 @@ function ContactDialog({ authorName }: { authorName: string; }) {
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Conversation avec {authorName}</DialogTitle>
-          <DialogDescription>
+          <DialogDescriptionComponent>
             Ceci est une conversation simulée par une IA.
-          </DialogDescription>
+          </DialogDescriptionComponent>
         </DialogHeader>
         <ScrollArea className="h-[300px] w-full rounded-md border p-4">
           <div className="space-y-4">
