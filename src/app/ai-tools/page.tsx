@@ -1,6 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RhymeGenerator } from '@/components/app/rhyme-generator';
-import { FeedbackTool } from '@/components/app/feedback-tool';
+import FeedbackTool from '@/components/app/feedback-tool';
 import { PromptGenerator } from '@/components/app/prompt-generator';
 
 export default function AIToolsPage() {
