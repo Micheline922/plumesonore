@@ -196,6 +196,172 @@ export const learningTracks = [
     `
   },
   {
+    title: "L'Art du Discours",
+    description: "Apprenez à structurer une intervention et à captiver votre auditoire.",
+    duration: '5 leçons',
+    level: 'Intermédiaire',
+    content: `
+      <h3>Introduction : Le Pouvoir de la Parole</h3>
+      <p>
+        Un discours est bien plus qu'une simple suite de mots. C'est un acte de communication puissant, capable d'inspirer, de persuader, de réconforter ou de mobiliser. De Démosthène à Martin Luther King, en passant par Steve Jobs, l'histoire est jalonnée de discours qui ont changé le cours des événements. Maîtriser l'art oratoire, c'est se donner les moyens de défendre ses idées avec force et conviction.
+      </p>
+      <p>
+        Ce parcours est conçu pour vous donner les clés d'un discours réussi. Nous aborderons la structure, les techniques de persuasion et l'importance de la connexion avec l'auditoire. Que vous prépariez une présentation professionnelle, un toast pour un mariage ou un plaidoyer pour une cause qui vous est chère, les principes restent les mêmes : clarté, émotion et authenticité.
+      </p>
+
+      <hr />
+
+      <h3>Leçon 1 : La Structure d'un Discours Impactant</h3>
+      <h4>L'Introduction : Accrocher en 30 Secondes</h4>
+      <p>
+        Les premières secondes de votre discours sont cruciales. Vous devez capter l'attention et établir votre crédibilité. Il existe plusieurs techniques efficaces pour commencer :
+        <ul>
+          <li><strong>La question rhétorique :</strong> "Et si je vous disais que tout ce que vous pensiez savoir sur... est faux ?"</li>
+          <li><strong>L'anecdote personnelle :</strong> Une histoire courte et pertinente qui crée un lien émotionnel.</li>
+          <li><strong>Le chiffre choc :</strong> Une statistique surprenante qui pique la curiosité.</li>
+          <li><strong>La citation :</strong> Une phrase inspirante qui introduit votre thème.</li>
+        </ul>
+        Après l'accroche, annoncez clairement l'objectif de votre discours. Dites à votre public ce qu'il va apprendre ou pourquoi il devrait vous écouter.
+      </p>
+      <h4>Le Développement : La Règle de Trois</h4>
+      <p>
+        Le cerveau humain aime les structures simples. La "règle de trois" est un principe de base en communication : structurez votre argumentation en trois points principaux. C'est facile à retenir pour vous et facile à suivre pour votre auditoire.
+      </p>
+      <p>
+        Pour chaque point, utilisez la méthode "Point, Preuve, Pont".
+        <ul>
+          <li><strong>Point :</strong> Énoncez clairement votre argument. ("Mon premier point est que...")</li>
+          <li><strong>Preuve :</strong> Soutenez votre argument avec des faits, des chiffres, des exemples concrets ou des témoignages.</li>
+          <li><strong>Pont :</strong> Expliquez en quoi cette preuve valide votre point et faites la transition vers le point suivant.</li>
+        </ul>
+        Cette structure rend votre discours logique, crédible et facile à suivre.
+      </p>
+      <h4>La Conclusion : Laisser une Impression Durable</h4>
+      <p>
+        La conclusion est ce que votre public retiendra le plus. Elle doit être mémorable et percutante. Ne terminez jamais par "Voilà, c'est tout".
+      </p>
+      <p>
+        Une bonne conclusion a deux objectifs : résumer vos points clés et lancer un appel à l'action. Rappelez brièvement vos trois arguments principaux, puis dites clairement à votre public ce que vous attendez de lui : réfléchir à une question, adopter un nouveau comportement, soutenir une cause, etc. Terminez par une phrase forte, qui peut faire écho à votre introduction pour boucler la boucle.
+      </p>
+    `
+  },
+  {
+    title: 'Écrire un Article Percutant',
+    description: 'De l\'angle à la relecture, les secrets d\'un bon article.',
+    duration: '4 leçons',
+    level: 'Tous niveaux',
+    content: `
+      <h3>Introduction : L'Art de l'Information Efficace</h3>
+      <p>
+        À l'ère du numérique, nous sommes submergés d'informations. Écrire un article percutant, c'est réussir à capter l'attention d'un lecteur pressé, à lui transmettre une information claire et à le faire réfléchir. Que ce soit pour un blog, un journal en ligne ou un rapport professionnel, les principes d'une écriture efficace sont universels.
+      </p>
+      <p>
+        Ce parcours vous guidera à travers les étapes essentielles de la rédaction d'un article, de la recherche de l'angle à la relecture finale. Nous verrons comment structurer vos idées, comment rédiger un titre qui donne envie de cliquer, et comment adopter un style clair et engageant pour votre lecteur.
+      </p>
+
+      <hr />
+
+      <h3>Leçon 1 : Avant d'Écrire : L'Angle et la Structure</h3>
+      <h4>Définir son Angle</h4>
+      <p>
+        Un sujet n'est pas un angle. Le sujet, c'est de quoi vous parlez (ex: "le télétravail"). L'angle, c'est la manière dont vous allez en parler (ex: "Comment le télétravail a-t-il transformé les relations entre collègues ?"). Un bon angle est spécifique, original et pertinent pour votre public cible. Avant d'écrire une seule ligne, demandez-vous : Quel est le message principal que je veux faire passer ? Quelle est l'histoire unique que je peux raconter sur ce sujet ?
+      </p>
+      <h4>La Structure en Pyramide Inversée</h4>
+      <p>
+        La plupart des lecteurs en ligne ne lisent pas les articles jusqu'au bout. Il faut donc leur donner l'information la plus importante dès le début. C'est le principe de la pyramide inversée, une technique journalistique fondamentale.
+        <ul>
+          <li><strong>Le "lead" (ou chapeau) :</strong> Le premier paragraphe doit répondre aux questions essentielles : Qui ? Quoi ? Où ? Quand ? Comment ? Pourquoi ? Il doit donner l'information cruciale et inciter à lire la suite.</li>
+          <li><strong>Le corps de l'article :</strong> Développez les points annoncés dans le lead, en allant du plus important au moins important. Chaque paragraphe doit développer une seule idée.</li>
+          <li><strong>La conclusion :</strong> Résumez l'essentiel et ouvrez sur une perspective plus large.</li>
+        </ul>
+      </p>
+      
+      <hr />
+      
+      <h3>Leçon 2 : Rédiger avec Clarté et Style</h3>
+      <h4>Le Titre et l'Introduction</h4>
+      <p>
+        Le titre est votre vitrine. Il doit être à la fois informatif et accrocheur. Utilisez des chiffres ("5 astuces pour..."), posez une question ("Savez-vous que...") ou utilisez des mots forts. L'introduction (le "lead") doit ensuite tenir la promesse du titre et donner envie d'aller plus loin.
+      </p>
+      <h4>Phrases Courtes et Voix Active</h4>
+      <p>
+        La clarté est votre priorité. Pour cela, privilégiez les phrases courtes et simples. Une idée par phrase. Utilisez la voix active ("Le chat mange la souris") plutôt que la voix passive ("La souris est mangée par le chat"). C'est plus direct, plus dynamique et plus facile à lire. Chassez le jargon et les mots compliqués. Votre objectif n'est pas d'impressionner, mais d'être compris.
+      </p>
+      <h4>L'Importance de la Relecture</h4>
+      <p>
+        Un article rempli de fautes d'orthographe ou de grammaire perd toute sa crédibilité. La relecture est une étape non négociable. Laissez reposer votre texte quelques heures avant de le relire, vous aurez un regard neuf. Lisez-le à voix haute pour repérer les phrases qui sonnent mal. Utilisez un correcteur orthographique, mais ne lui faites pas une confiance aveugle. Une relecture attentive fait la différence entre un travail amateur et un travail professionnel.
+      </p>
+    `
+  },
+  {
+    title: "Créer son Podcast de A à Z",
+    description: "De la conception à la diffusion, lancez votre propre émission audio.",
+    duration: '5 leçons',
+    level: 'Débutant',
+    content: `
+      <h3>Introduction : Le Média de l'Intimité</h3>
+      <p>
+        Le podcast est devenu un média incontournable. Sa force réside dans sa nature intime : c'est une voix qui nous parle directement à l'oreille, pendant que nous faisons la vaisselle, du sport ou dans les transports. Lancer son podcast, c'est l'opportunité de partager une passion, une expertise ou des histoires d'une manière profondément humaine et personnelle.
+      </p>
+      <p>
+        Mais comment passer de l'idée à la première diffusion ? Ce parcours est un guide pratique pour vous accompagner à chaque étape. Nous verrons comment définir son concept, quel matériel choisir, comment structurer un épisode, et enfin, comment diffuser votre création pour qu'elle trouve son public.
+      </p>
+
+      <hr />
+
+      <h3>Leçon 1 : Le Concept et la Préparation</h3>
+      <h4>Trouver sa Niche</h4>
+      <p>
+        Le monde du podcast est vaste. Pour vous démarquer, trouvez une niche : un sujet spécifique qui vous passionne et pour lequel il existe une audience. Ne cherchez pas à plaire à tout le monde. Mieux vaut être le podcast préféré de 100 personnes passionnées qu'un podcast parmi tant d'autres pour 10 000 auditeurs occasionnels. Quel est le sujet que vous pourriez aborder pendant des heures sans vous lasser ?
+      </p>
+      <h4>Définir son Format</h4>
+      <p>
+        Il existe de nombreux formats de podcast. Lequel correspond le mieux à votre projet ?
+        <ul>
+          <li><strong>Solo :</strong> Vous êtes seul au micro. Idéal pour partager une expertise ou des réflexions personnelles.</li>
+          <li><strong>Interview :</strong> Vous recevez des invités. Parfait pour explorer des parcours et des points de vue variés.</li>
+          <li><strong>Co-animation :</strong> Vous êtes deux ou plusieurs animateurs. Le format de la conversation, souvent plus dynamique et divertissant.</li>
+          <li><strong>Narratif :</strong> Un format très scénarisé, qui raconte une histoire sur un ou plusieurs épisodes.</li>
+        </ul>
+        Choisissez le format qui vous semble le plus naturel et le plus adapté à votre contenu.
+      </p>
+      
+      <hr />
+
+      <h3>Leçon 2 : Le Matériel et l'Enregistrement</h3>
+      <h4>Le Micro, votre Meilleur Ami</h4>
+      <p>
+        La qualité audio est le critère numéro un pour un podcast. Un son de mauvaise qualité fera fuir vos auditeurs. Il n'est pas nécessaire de dépenser des fortunes, mais investir dans un bon micro USB est un excellent point de départ. Les modèles comme le Blue Yeti ou l'Audio-Technica AT2020 sont des références pour les débutants.
+      </p>
+      <p>
+        Enregistrez dans une pièce calme, avec beaucoup de tissus (tapis, rideaux, plaids) pour absorber l'écho. Un simple placard rempli de vêtements peut faire un excellent studio d'enregistrement de fortune ! Parlez près du micro (environ 15-20 cm) pour obtenir un son clair et chaleureux.
+      </p>
+      
+      <hr />
+      
+      <h3>Leçon 3 : Le Montage et la Diffusion</h3>
+      <h4>La Structure d'un Épisode</h4>
+      <p>
+        Un bon épisode est bien structuré. Pensez à inclure :
+        <ul>
+          <li><strong>Un jingle d'introduction :</strong> Une courte musique qui signe votre émission.</li>
+          <li><strong>Une introduction :</strong> Présentez-vous et annoncez le sujet de l'épisode.</li>
+          <li><strong>Le corps de l'épisode :</strong> Le contenu principal, que vous pouvez structurer en plusieurs parties.</li>
+          <li><strong>Une conclusion :</strong> Résumez les points clés et lancez un appel à l'action (s'abonner, laisser un commentaire...).</li>
+          <li><strong>Un jingle de fin.</strong></li>
+        </ul>
+      </p>
+      <h4>Le Montage : Couper et Nettoyer</h4>
+      <p>
+        Le montage est l'étape où vous allez rendre votre enregistrement brut agréable à écouter. Utilisez un logiciel de montage audio comme Audacity (gratuit) ou Descript (très intuitif). Votre mission : couper les hésitations, les "euh", les longs silences et les bruits parasites. Vous pouvez aussi ajouter votre musique et vos jingles à cette étape. L'objectif n'est pas la perfection, mais la fluidité.
+      </p>
+      <h4>La Diffusion</h4>
+      <p>
+        Pour que votre podcast soit disponible sur Spotify, Apple Podcasts, etc., vous devez l'héberger chez un hébergeur de podcasts (comme Ausha, Podbean, Anchor). Vous y téléchargez votre fichier audio final, vous écrivez un titre et une description pour l'épisode, et l'hébergeur se charge de générer le "flux RSS" que vous soumettrez ensuite aux différentes plateformes d'écoute. C'est plus simple que ça en a l'air !
+      </p>
+    `
+  },
+  {
     title: 'Défi Quotidien : Le Mot du Jour',
     description: 'Un nouveau mot chaque jour pour inspirer un court poème ou une punchline.',
     duration: 'Quotidien',

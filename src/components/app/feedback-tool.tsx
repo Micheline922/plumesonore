@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, Sparkles } from 'lucide-react';
 import { Separator } from '../ui/separator';
 
-type WritingStyle = 'poetry' | 'slam' | 'rap';
+type WritingStyle = 'poetry' | 'slam' | 'rap' | 'article' | 'speech' | 'podcast';
 type Language = 'french' | 'english';
 
 export function FeedbackTool() {
@@ -86,6 +86,9 @@ export function FeedbackTool() {
                     <SelectItem value="poetry">Poésie</SelectItem>
                     <SelectItem value="slam">Slam</SelectItem>
                     <SelectItem value="rap">Rap</SelectItem>
+                    <SelectItem value="article">Article</SelectItem>
+                    <SelectItem value="speech">Discours</SelectItem>
+                    <SelectItem value="podcast">Podcast</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -98,7 +101,7 @@ export function FeedbackTool() {
                 >
                   <SelectTrigger id="language">
                     <SelectValue placeholder="Langue" />
-                  </SelectTrigger>
+                  </Trigger>
                   <SelectContent>
                     <SelectItem value="french">Français</SelectItem>
                     <SelectItem value="english">Anglais</SelectItem>
