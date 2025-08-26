@@ -35,6 +35,56 @@ export default function WritingPadPage() {
     return `plume-sonore-creations-${user.email}`;
   }, [user]);
 
+  const handleSave = useCallback(() => {
+    if (!title && !content) {
+      toast({
+        title: 'Contenu vide',
+        description: "Veuillez donner un titre ou un contenu à votre création.",
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    let updatedCreations = [...creations];
+    let isNew = false;
+    let newId: number | null = null;
+
+    if (currentCreationId) {
+      // Update existing creation
+      updatedCreations = creations.map(c => 
+        c.id === currentCreationId ? { ...c, title, content, date: new Date().toISOString() } : c
+      );
+    } else {
+      // Create new creation
+      const newCreation: Creation = {
+        id: Date.now(),
+        title: title || 'Sans titre',
+        content,
+        type: 'text',
+        date: new Date().toISOString(),
+      };
+      newId = newCreation.id;
+      updatedCreations = [newCreation, ...creations];
+      isNew = true;
+    }
+    
+    setCreations(updatedCreations);
+    if(isNew && newId) {
+        setCurrentCreationId(newId);
+    }
+
+    const storageKey = getStorageKey();
+    if(storageKey) {
+        localStorage.setItem(storageKey, JSON.stringify(updatedCreations));
+    }
+    
+    toast({
+      title: 'Sauvegardé !',
+      description: 'Votre création a été ajoutée à votre bibliothèque.',
+    });
+  }, [title, content, creations, currentCreationId, getStorageKey, toast]);
+
+
   useEffect(() => {
     const storageKey = getStorageKey();
     if (storageKey) {
@@ -56,46 +106,19 @@ export default function WritingPadPage() {
     }
   }, [searchParams, getStorageKey]);
 
-  const handleSave = () => {
-    if (!title && !content) {
-      toast({
-        title: 'Contenu vide',
-        description: "Veuillez donner un titre ou un contenu à votre création.",
-        variant: 'destructive',
-      });
-      return;
-    }
-    
-    let updatedCreations = [...creations];
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+        if ((event.ctrlKey || event.metaKey) && event.key === 's') {
+            event.preventDefault();
+            handleSave();
+        }
+    };
 
-    if (currentCreationId) {
-      // Update existing creation
-      updatedCreations = creations.map(c => 
-        c.id === currentCreationId ? { ...c, title, content, date: new Date().toISOString() } : c
-      );
-    } else {
-      // Create new creation
-      const newCreation: Creation = {
-        id: Date.now(),
-        title: title || 'Sans titre',
-        content,
-        type: 'text',
-        date: new Date().toISOString(),
-      };
-      updatedCreations = [newCreation, ...creations];
-    }
-    
-    setCreations(updatedCreations);
-    const storageKey = getStorageKey();
-    if(storageKey) {
-        localStorage.setItem(storageKey, JSON.stringify(updatedCreations));
-    }
-    
-    toast({
-      title: 'Sauvegardé !',
-      description: 'Votre création a été ajoutée à votre bibliothèque.',
-    });
-  };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+        window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleSave]);
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
@@ -103,7 +126,7 @@ export default function WritingPadPage() {
         <CardHeader>
           <CardTitle className="font-headline text-2xl">Atelier d'écriture</CardTitle>
           <CardDescription>
-            C'est ici que la magie opère. Écrivez sans distraction.
+            C'est ici que la magie opère. Écrivez sans distraction. (Raccourci: Ctrl/Cmd + S pour sauvegarder)
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
