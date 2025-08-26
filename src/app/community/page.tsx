@@ -5,10 +5,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Heart, MessageCircle, Send, Pencil, Mail, Loader2, X } from 'lucide-react';
+import { Heart, MessageCircle, Send, Mail, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import {
   Dialog,
@@ -24,8 +23,6 @@ import { useAuth } from '@/components/app/user-gate';
 import { db } from '@/lib/firebase';
 import { 
     collection, 
-    addDoc, 
-    serverTimestamp, 
     query, 
     orderBy, 
     onSnapshot,
@@ -33,7 +30,8 @@ import {
     updateDoc,
     increment,
     arrayUnion,
-    arrayRemove
+    arrayRemove,
+    where
 } from 'firebase/firestore';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -56,65 +54,12 @@ interface Post {
   likedBy: string[];
   comments: Comment[];
   createdAt: any;
+  status: 'draft' | 'published';
 }
 
 interface ChatMessage {
   sender: 'user' | 'bot';
   text: string;
-}
-
-interface ChatSession {
-  [artistName: string]: ChatMessage[];
-}
-
-function NewPostForm({ onAddPost, isLoading }: { onAddPost: (text: string) => void; isLoading: boolean }) {
-  const [postText, setPostText] = useState('');
-  const { user } = useAuth();
-  const { toast } = useToast();
-
-  const handlePublish = () => {
-    if (!postText.trim()) {
-      toast({
-        title: 'Contenu manquant',
-        description: 'Veuillez écrire quelque chose avant de publier.',
-        variant: 'destructive',
-      });
-      return;
-    }
-    onAddPost(postText);
-    setPostText('');
-  };
-
-  return (
-    <Card className="mb-6">
-      <CardHeader>
-        <CardTitle className="font-headline flex items-center gap-2">
-          <Pencil className="h-5 w-5" />
-          Créer une publication
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="flex items-start gap-4">
-          <Avatar>
-            <AvatarFallback>{user?.displayName?.charAt(0) || 'U'}</AvatarFallback>
-          </Avatar>
-          <Textarea
-            placeholder="Exprimez-vous, partagez un vers, demandez un avis..."
-            value={postText}
-            onChange={(e) => setPostText(e.target.value)}
-            className="min-h-[80px]"
-            disabled={isLoading}
-          />
-        </div>
-      </CardContent>
-      <CardFooter className="flex justify-end">
-        <Button onClick={handlePublish} disabled={isLoading}>
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Publier
-        </Button>
-      </CardFooter>
-    </Card>
-  );
 }
 
 function ContactDialog({ authorName }: { authorName: string; }) {
@@ -233,16 +178,19 @@ function ContactDialog({ authorName }: { authorName: string; }) {
 export default function CommunityPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoadingPosts, setIsLoadingPosts] = useState(true);
-  const [isPublishing, setIsPublishing] = useState(false);
   const [activeCommentSection, setActiveCommentSection] = useState<string | null>(null);
   const [commentText, setCommentText] = useState('');
   const { user } = useAuth();
   const { toast } = useToast();
 
   useEffect(() => {
-      const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
+      const q = query(
+        collection(db, 'creations'), 
+        where('status', '==', 'published'),
+        orderBy('createdAt', 'desc')
+      );
       const unsubscribe = onSnapshot(q, (snapshot) => {
-          const fetchedPosts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Post));
+          const fetchedPosts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), text: doc.data().content } as Post));
           setPosts(fetchedPosts);
           setIsLoadingPosts(false);
       }, (error) => {
@@ -254,37 +202,13 @@ export default function CommunityPage() {
       return () => unsubscribe();
   }, [toast]);
 
-  const handleAddPost = async (text: string) => {
-    if (!user) {
-        toast({ title: 'Non connecté', description: 'Vous devez être connecté pour publier.', variant: 'destructive' });
-        return;
-    }
-    setIsPublishing(true);
-    try {
-        await addDoc(collection(db, 'posts'), {
-            authorId: user.uid,
-            authorName: user.displayName,
-            text,
-            likes: 0,
-            likedBy: [],
-            comments: [],
-            createdAt: serverTimestamp(),
-        });
-    } catch (error) {
-        console.error("Error adding post:", error);
-        toast({ title: 'Erreur', description: 'Impossible de publier le message.', variant: 'destructive' });
-    } finally {
-        setIsPublishing(false);
-    }
-  };
-
   const toggleLike = async (postId: string) => {
     if (!user) return;
-    const postRef = doc(db, 'posts', postId);
+    const postRef = doc(db, 'creations', postId);
     const post = posts.find(p => p.id === postId);
     if (!post) return;
 
-    const isLiked = post.likedBy.includes(user.uid);
+    const isLiked = post.likedBy && post.likedBy.includes(user.uid);
     try {
         await updateDoc(postRef, {
             likes: increment(isLiked ? -1 : 1),
@@ -298,12 +222,12 @@ export default function CommunityPage() {
 
   const handleAddComment = async (postId: string) => {
     if (!commentText.trim() || !user) return;
-    const postRef = doc(db, 'posts', postId);
+    const postRef = doc(db, 'creations', postId);
     const newComment: Comment = {
         authorId: user.uid,
         authorName: user.displayName || "Anonyme",
         text: commentText,
-        createdAt: serverTimestamp(),
+        createdAt: new Date(),
     };
     try {
         await updateDoc(postRef, {
@@ -330,15 +254,24 @@ export default function CommunityPage() {
       <div className="flex items-center">
         <div>
           <h1 className="font-headline text-3xl font-bold tracking-tight">Communauté</h1>
-          <p className="text-muted-foreground mt-1">Partagez, découvrez, collaborez.</p>
+          <p className="text-muted-foreground mt-1">Découvrez les œuvres publiées par les artistes de Plume Sonore.</p>
         </div>
       </div>
       <div className="mx-auto w-full max-w-2xl space-y-6">
-        <NewPostForm onAddPost={handleAddPost} isLoading={isPublishing} />
         {isLoadingPosts ? (
             <div className='space-y-6'>
                 <Skeleton className='h-48 w-full'/>
                 <Skeleton className='h-32 w-full'/>
+                <Skeleton className='h-40 w-full'/>
+            </div>
+        ) : posts.length === 0 ? (
+            <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm py-16">
+              <div className="flex flex-col items-center gap-2 text-center">
+                <h3 className="text-2xl font-bold tracking-tight">La scène est encore vide</h3>
+                <p className="text-sm text-muted-foreground max-w-sm">
+                  Aucune création n'a été publiée pour le moment. Soyez le premier à partager votre talent !
+                </p>
+              </div>
             </div>
         ) : posts.map((post) => (
           <Card key={post.id}>
@@ -356,13 +289,14 @@ export default function CommunityPage() {
               </div>
             </CardHeader>
             <CardContent>
+              <h4 className="font-headline text-lg font-semibold mb-2">{post.id}</h4>
               <p className="whitespace-pre-wrap text-sm">{post.text}</p>
             </CardContent>
             <CardFooter className="flex-col items-start">
               <div className="flex gap-4">
                 <Button variant="ghost" size="sm" className="flex items-center gap-2" onClick={() => toggleLike(post.id)}>
-                  <Heart className={cn('h-4 w-4', post.likedBy.includes(user.uid) && 'fill-destructive text-destructive')} />
-                  <span>{post.likes}</span>
+                  <Heart className={cn('h-4 w-4', post.likedBy && post.likedBy.includes(user.uid) && 'fill-destructive text-destructive')} />
+                  <span>{post.likes || 0}</span>
                 </Button>
                 <Button variant="ghost" size="sm" className="flex items-center gap-2" onClick={() => setActiveCommentSection(activeCommentSection === post.id ? null : post.id)}>
                   <MessageCircle className="h-4 w-4" />
