@@ -1,12 +1,10 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, GraduationCap, Lightbulb, Mic, NotebookPen, Sparkles, Users, Library } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { WelcomeTour } from '@/components/app/welcome-tour';
 
 const featureCards = [
   {
@@ -54,31 +52,8 @@ const featureCards = [
 ];
 
 export default function DashboardPage() {
-  const [showTour, setShowTour] = useState(false);
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  useEffect(() => {
-    if (isClient) {
-      const tourCompleted = localStorage.getItem('plume-sonore-tour-completed');
-      if (!tourCompleted) {
-        setShowTour(true);
-      }
-    }
-  }, [isClient]);
-
-  const handleTourComplete = () => {
-    localStorage.setItem('plume-sonore-tour-completed', 'true');
-    setShowTour(false);
-  };
-
-
   return (
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-        {isClient && <WelcomeTour open={showTour} onOpenChange={setShowTour} onFinish={handleTourComplete} />}
         <div className="flex items-center">
           <div>
             <h1 className="font-headline text-3xl font-bold tracking-tight">Bienvenue, Artiste !</h1>
