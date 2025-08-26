@@ -16,7 +16,7 @@ import { Loader2, Sparkles } from 'lucide-react';
 type WritingStyle = 'poetry' | 'slam' | 'rap' | 'article' | 'speech' | 'podcast';
 type Language = 'french' | 'english';
 
-export function FeedbackTool() {
+export default function FeedbackTool() {
   const [text, setText] = useState('');
   const [writingStyle, setWritingStyle] = useState<WritingStyle>('poetry');
   const [language, setLanguage] = useState<Language>('french');
