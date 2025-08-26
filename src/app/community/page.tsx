@@ -19,42 +19,24 @@ import {
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { generateChatResponse } from '@/ai/flows/generate-chat-response';
+import { communityPosts as placeholderPosts } from '@/lib/placeholder-data';
 import { useAuth } from '@/components/app/user-gate';
-import { db } from '@/lib/firebase';
-import { 
-    collection, 
-    query, 
-    orderBy, 
-    onSnapshot,
-    doc,
-    updateDoc,
-    increment,
-    arrayUnion,
-    arrayRemove,
-    where
-} from 'firebase/firestore';
-import { formatDistanceToNow } from 'date-fns';
-import { fr } from 'date-fns/locale';
-import { Skeleton } from '@/components/ui/skeleton';
+
 
 interface Comment {
-  authorId: string;
-  authorName: string;
+  author: string;
   text: string;
-  createdAt: any;
 }
 
 interface Post {
-  id: string;
-  authorId: string;
-  authorName: string;
+  id: number;
+  author: string;
   avatar?: string;
+  time: string;
   text: string;
   likes: number;
-  likedBy: string[];
+  commentsCount: number;
   comments: Comment[];
-  createdAt: any;
-  status: 'draft' | 'published';
 }
 
 interface ChatMessage {
@@ -72,7 +54,7 @@ function ContactDialog({ authorName }: { authorName: string; }) {
 
   const getChatStorageKey = useCallback(() => {
       if (!user) return null;
-      return `plume-sonore-chat-${user.uid}-${authorName}`;
+      return `plume-sonore-chat-${user.email}-${authorName}`;
   }, [user, authorName]);
 
 
@@ -86,7 +68,7 @@ function ContactDialog({ authorName }: { authorName: string; }) {
   }, [isOpen, getChatStorageKey]);
 
   const handleSendMessage = async () => {
-    if (!message.trim() || !user?.displayName) return;
+    if (!message.trim()) return;
 
     const userMessage: ChatMessage = { sender: 'user', text: message };
     const newChatHistory = [...chatHistory, userMessage];
@@ -96,7 +78,7 @@ function ContactDialog({ authorName }: { authorName: string; }) {
 
     try {
       const result = await generateChatResponse({
-        senderName: user.displayName,
+        senderName: user?.artistName || "L'utilisateur",
         recipientName: authorName,
         message: message,
       });
@@ -146,7 +128,7 @@ function ContactDialog({ authorName }: { authorName: string; }) {
                 <div className={cn('max-w-[75%] rounded-lg p-3 text-sm', chat.sender === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted')}>
                   {chat.text}
                 </div>
-                {chat.sender === 'user' && <Avatar className="h-8 w-8"><AvatarFallback>{user?.displayName?.charAt(0)}</AvatarFallback></Avatar>}
+                {chat.sender === 'user' && <Avatar className="h-8 w-8"><AvatarFallback>{user?.artistName?.charAt(0)}</AvatarFallback></Avatar>}
               </div>
             ))}
              {isLoading && (
@@ -177,139 +159,119 @@ function ContactDialog({ authorName }: { authorName: string; }) {
 
 export default function CommunityPage() {
   const [posts, setPosts] = useState<Post[]>([]);
-  const [isLoadingPosts, setIsLoadingPosts] = useState(true);
-  const [activeCommentSection, setActiveCommentSection] = useState<string | null>(null);
+  const [newPostText, setNewPostText] = useState('');
+  const [activeCommentSection, setActiveCommentSection] = useState<number | null>(null);
   const [commentText, setCommentText] = useState('');
   const { user } = useAuth();
   const { toast } = useToast();
 
+  const getStorageKey = useCallback(() => {
+    if (!user) return 'plume-sonore-community-posts'; // Default key if no user
+    return `plume-sonore-community-posts-${user.email}`;
+  }, [user]);
+
   useEffect(() => {
-      const q = query(
-        collection(db, 'creations'), 
-        where('status', '==', 'published'),
-        orderBy('createdAt', 'desc')
-      );
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-          const fetchedPosts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), text: doc.data().content } as Post));
-          setPosts(fetchedPosts);
-          setIsLoadingPosts(false);
-      }, (error) => {
-          console.error("Error fetching posts:", error);
-          toast({ title: "Erreur", description: "Impossible de charger les publications.", variant: "destructive" });
-          setIsLoadingPosts(false);
-      });
+    const storageKey = getStorageKey();
+    const storedPosts = localStorage.getItem(storageKey);
+    const initialPosts = storedPosts ? JSON.parse(storedPosts) : placeholderPosts;
+    setPosts(initialPosts);
+  }, [getStorageKey]);
 
-      return () => unsubscribe();
-  }, [toast]);
-
-  const toggleLike = async (postId: string) => {
-    if (!user) return;
-    const postRef = doc(db, 'creations', postId);
-    const post = posts.find(p => p.id === postId);
-    if (!post) return;
-
-    const isLiked = post.likedBy && post.likedBy.includes(user.uid);
-    try {
-        await updateDoc(postRef, {
-            likes: increment(isLiked ? -1 : 1),
-            likedBy: isLiked ? arrayRemove(user.uid) : arrayUnion(user.uid)
-        });
-    } catch(error) {
-        console.error("Error toggling like:", error);
-        toast({ title: 'Erreur', variant: 'destructive' });
+  useEffect(() => {
+    // Prevent saving default data back to local storage on initial load
+    if (posts.length > 0) {
+      const storageKey = getStorageKey();
+      localStorage.setItem(storageKey, JSON.stringify(posts));
     }
-  };
+  }, [posts, getStorageKey]);
 
-  const handleAddComment = async (postId: string) => {
-    if (!commentText.trim() || !user) return;
-    const postRef = doc(db, 'creations', postId);
-    const newComment: Comment = {
-        authorId: user.uid,
-        authorName: user.displayName || "Anonyme",
-        text: commentText,
-        createdAt: new Date(),
+  const handlePostSubmit = () => {
+    if (!newPostText.trim() || !user) {
+        toast({ title: 'Erreur', description: 'Le texte est vide ou vous n\'êtes pas connecté.', variant: 'destructive'});
+        return;
+    }
+    const newPost: Post = {
+      id: Date.now(),
+      author: user.artistName,
+      avatar: 'https://placehold.co/40x40.png',
+      time: 'à l\'instant',
+      text: newPostText,
+      likes: 0,
+      commentsCount: 0,
+      comments: [],
     };
-    try {
-        await updateDoc(postRef, {
-            comments: arrayUnion(newComment)
-        });
-        setCommentText('');
-    } catch (error) {
-        console.error("Error adding comment: ", error);
-        toast({ title: 'Erreur', description: "Impossible d'ajouter le commentaire.", variant: 'destructive' });
-    }
+    setPosts([newPost, ...posts]);
+    setNewPostText('');
   };
 
-  const formatPostTime = (timestamp: any) => {
-    if (!timestamp) return "à l'instant";
-    return formatDistanceToNow(timestamp.toDate(), { addSuffix: true, locale: fr });
-  }
-  
-  if (!user) {
-      return null;
-  }
+  const toggleLike = (postId: number) => {
+    setPosts(posts.map(p => p.id === postId ? { ...p, likes: p.likes + 1 } : p));
+  };
+
+  const handleAddComment = (postId: number) => {
+    if (!commentText.trim() || !user) return;
+    const newComment = { author: user.artistName, text: commentText };
+    setPosts(posts.map(p => p.id === postId ? { ...p, comments: [...p.comments, newComment], commentsCount: p.commentsCount + 1 } : p));
+    setCommentText('');
+  };
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <div className="flex items-center">
         <div>
           <h1 className="font-headline text-3xl font-bold tracking-tight">Communauté</h1>
-          <p className="text-muted-foreground mt-1">Découvrez les œuvres publiées par les artistes de Plume Sonore.</p>
+          <p className="text-muted-foreground mt-1">Découvrez, partagez et collaborez avec d'autres artistes.</p>
         </div>
       </div>
       <div className="mx-auto w-full max-w-2xl space-y-6">
-        {isLoadingPosts ? (
-            <div className='space-y-6'>
-                <Skeleton className='h-48 w-full'/>
-                <Skeleton className='h-32 w-full'/>
-                <Skeleton className='h-40 w-full'/>
+        <Card>
+          <CardHeader>
+            <CardTitle className="font-headline">Partagez une idée</CardTitle>
+            <CardDescription>Une rime, un couplet, une question... lancez-vous !</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid w-full gap-2">
+              <Textarea placeholder="Votre texte ici..." value={newPostText} onChange={(e) => setNewPostText(e.target.value)} />
+              <Button onClick={handlePostSubmit} disabled={!user}>Envoyer</Button>
             </div>
-        ) : posts.length === 0 ? (
-            <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm py-16">
-              <div className="flex flex-col items-center gap-2 text-center">
-                <h3 className="text-2xl font-bold tracking-tight">La scène est encore vide</h3>
-                <p className="text-sm text-muted-foreground max-w-sm">
-                  Aucune création n'a été publiée pour le moment. Soyez le premier à partager votre talent !
-                </p>
-              </div>
-            </div>
-        ) : posts.map((post) => (
+          </CardContent>
+        </Card>
+        {posts.map((post) => (
           <Card key={post.id}>
             <CardHeader className="flex flex-row items-center gap-4">
               <Avatar>
-                <AvatarImage src={post.avatar} alt={`@${post.authorName}`} data-ai-hint="person portrait" />
-                <AvatarFallback>{post.authorName.charAt(0)}</AvatarFallback>
+                <AvatarImage src={post.avatar} alt={`@${post.author}`} data-ai-hint="person portrait" />
+                <AvatarFallback>{post.author.charAt(0)}</AvatarFallback>
               </Avatar>
               <div className="grid gap-1">
                 <div className="flex items-center gap-2">
-                  <p className="text-sm font-semibold leading-none">{post.authorName}</p>
-                  {post.authorId !== user.uid && <ContactDialog authorName={post.authorName} />}
+                  <p className="text-sm font-semibold leading-none">{post.author}</p>
+                  {user && post.author !== user.artistName && <ContactDialog authorName={post.author} />}
                 </div>
-                <p className="text-sm text-muted-foreground">{formatPostTime(post.createdAt)}</p>
+                <p className="text-sm text-muted-foreground">{post.time}</p>
               </div>
             </CardHeader>
             <CardContent>
-              <h4 className="font-headline text-lg font-semibold mb-2">{post.id}</h4>
               <p className="whitespace-pre-wrap text-sm">{post.text}</p>
             </CardContent>
             <CardFooter className="flex-col items-start">
               <div className="flex gap-4">
                 <Button variant="ghost" size="sm" className="flex items-center gap-2" onClick={() => toggleLike(post.id)}>
-                  <Heart className={cn('h-4 w-4', post.likedBy && post.likedBy.includes(user.uid) && 'fill-destructive text-destructive')} />
-                  <span>{post.likes || 0}</span>
+                  <Heart className="h-4 w-4" />
+                  <span>{post.likes}</span>
                 </Button>
                 <Button variant="ghost" size="sm" className="flex items-center gap-2" onClick={() => setActiveCommentSection(activeCommentSection === post.id ? null : post.id)}>
                   <MessageCircle className="h-4 w-4" />
-                  <span>{post.comments?.length || 0}</span>
+                  <span>{post.commentsCount}</span>
                 </Button>
               </div>
               {activeCommentSection === post.id && (
                 <div className="w-full mt-4 space-y-4 pt-4 border-t">
-                  {[...(post.comments || [])].sort((a,b) => b.createdAt?.toMillis() - a.createdAt?.toMillis()).map((comment, index) => (
+                  {post.comments.map((comment, index) => (
                     <div key={index} className="flex items-start gap-3 text-sm">
-                      <Avatar className="w-8 h-8 border"><AvatarFallback>{comment.authorName.charAt(0)}</AvatarFallback></Avatar>
+                      <Avatar className="w-8 h-8 border"><AvatarFallback>{comment.author.charAt(0)}</AvatarFallback></Avatar>
                       <div className="bg-muted p-3 rounded-lg w-full">
-                        <p className="font-semibold text-xs">{comment.authorName}</p>
+                        <p className="font-semibold text-xs">{comment.author}</p>
                         <p className="text-muted-foreground">{comment.text}</p>
                       </div>
                     </div>

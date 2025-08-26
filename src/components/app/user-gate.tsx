@@ -5,60 +5,82 @@ import { useEffect, useState, createContext, useContext } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useSidebar } from '@/components/ui/sidebar';
-import { auth } from '@/lib/firebase';
-import { onAuthStateChanged, type User } from 'firebase/auth';
+
+interface User {
+    artistName: string;
+    email: string;
+}
 
 interface AuthContextType {
     user: User | null;
-    isLoading: boolean;
+    login: (user: User) => void;
+    logout: () => void;
 }
 
-const AuthContext = createContext<AuthContextType>({ user: null, isLoading: true });
+const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isVerified, setIsVerified] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setIsLoading(false);
-    });
-    return () => unsubscribe();
+    const storedUser = localStorage.getItem('plume-sonore-user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+    setIsVerified(true);
   }, []);
 
+  const login = (userData: User) => {
+    localStorage.setItem('plume-sonore-user', JSON.stringify(userData));
+    setUser(userData);
+  };
+
+  const logout = () => {
+    localStorage.removeItem('plume-sonore-user');
+    setUser(null);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isLoading }}>
-      {children}
+    <AuthContext.Provider value={{ user, login, logout }}>
+      {isVerified ? children : null}
     </AuthContext.Provider>
   );
 }
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+};
 
 export function UserGate({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, isLoading } = useAuth();
-  const isVerified = !isLoading;
+  const { user } = useAuth();
   const { setOpen } = useSidebar();
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isClient) return;
+
     const isLoginPage = pathname === '/login';
     
     // Always hide sidebar on login page
     setOpen(!isLoginPage);
 
-    if (!isLoading) {
-      if (!user && !isLoginPage) {
-        router.replace('/login');
-      } else if (user && isLoginPage) {
-        router.replace('/');
-      }
+    if (!user && !isLoginPage) {
+      router.replace('/login');
     }
-  }, [router, pathname, user, isLoading, setOpen]);
+  }, [router, pathname, user, setOpen, isClient]);
 
-  if (!isVerified || (!user && pathname !== '/login')) {
+  if (!isClient || (!user && pathname !== '/login')) {
     return (
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
             <div className="space-y-2">

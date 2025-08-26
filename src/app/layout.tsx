@@ -6,6 +6,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { UserGate, AuthProvider } from '@/components/app/user-gate';
 import { AppHeader } from '@/components/app/app-header';
 import './globals.css';
+import { Textarea } from '@/components/ui/textarea';
 
 export const metadata: Metadata = {
   title: 'Plume Sonore',

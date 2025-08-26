@@ -1,10 +1,10 @@
 
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mic, Pause, Square, Save, CircleDot, Loader2 } from 'lucide-react';
+import { Mic, Pause, Square, Save, CircleDot } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -20,21 +20,25 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/components/app/user-gate';
-import { db, storage } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+
 
 type StageState = 'idle' | 'recording' | 'paused' | 'finished';
+
+interface Creation {
+  id: number;
+  title: string;
+  audioSrc: string;
+  type: 'audio';
+  date: string;
+}
 
 export default function StagePage() {
   const [stage, setStage] = useState<StageState>('idle');
   const [progress, setProgress] = useState(0);
   const [audioURL, setAudioURL] = useState('');
-  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [isSaveAlertOpen, setIsSaveAlertOpen] = useState(false);
   const [performanceTitle, setPerformanceTitle] = useState('');
-  const [isSaving, setIsSaving] = useState(false);
-
+  
   const { user } = useAuth();
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -62,6 +66,7 @@ export default function StagePage() {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stage]);
 
   const requestMicPermission = async () => {
@@ -85,8 +90,7 @@ export default function StagePage() {
     setStage('recording');
     audioChunksRef.current = [];
     setAudioURL('');
-    setAudioBlob(null);
-
+    
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     mediaRecorderRef.current = new MediaRecorder(stream, { mimeType: 'audio/webm' });
     mediaRecorderRef.current.ondataavailable = (event) => {
@@ -95,7 +99,6 @@ export default function StagePage() {
     mediaRecorderRef.current.onstop = () => {
       const blob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
       const url = URL.createObjectURL(blob);
-      setAudioBlob(blob);
       setAudioURL(url);
       stream.getTracks().forEach(track => track.stop());
     };
@@ -130,11 +133,10 @@ export default function StagePage() {
     setStage('idle');
     setProgress(0);
     setAudioURL('');
-    setAudioBlob(null);
   }
 
-  const handleSave = async () => {
-    if (!performanceTitle) {
+  const handleSave = () => {
+     if (!performanceTitle) {
       toast({ title: 'Titre manquant', description: 'Veuillez donner un titre à votre performance.', variant: 'destructive' });
       return;
     }
@@ -142,38 +144,25 @@ export default function StagePage() {
       toast({ title: 'Utilisateur non connecté', description: 'Vous devez être connecté pour sauvegarder.', variant: 'destructive' });
       return;
     }
-    if (!audioBlob) {
-      toast({ title: 'Aucun enregistrement', description: "Il n'y a rien à sauvegarder.", variant: 'destructive' });
-      return;
-    }
 
-    setIsSaving(true);
-    try {
-      // 1. Upload audio to Firebase Storage
-      const storageRef = ref(storage, `audio/${user.uid}/${Date.now()}.webm`);
-      const snapshot = await uploadBytes(storageRef, audioBlob);
-      const downloadURL = await getDownloadURL(snapshot.ref);
+    const newCreation: Creation = {
+      id: Date.now(),
+      title: performanceTitle,
+      audioSrc: audioURL,
+      type: 'audio',
+      date: new Date().toISOString(),
+    };
 
-      // 2. Save creation metadata to Firestore
-      await addDoc(collection(db, 'creations'), {
-        authorId: user.uid,
-        authorName: user.displayName,
-        title: performanceTitle,
-        audioSrc: downloadURL,
-        type: 'audio',
-        createdAt: serverTimestamp(),
-      });
+    const storageKey = `plume-sonore-creations-${user.email}`;
+    const existingCreationsRaw = localStorage.getItem(storageKey);
+    const existingCreations: Creation[] = existingCreationsRaw ? JSON.parse(existingCreationsRaw) : [];
+    
+    localStorage.setItem(storageKey, JSON.stringify([newCreation, ...existingCreations]));
 
-      toast({ title: 'Performance sauvegardée !', description: 'Votre enregistrement a été ajouté à "Mes Créations".' });
-      setIsSaveAlertOpen(false);
-      setPerformanceTitle('');
-      handleReset();
-    } catch (error) {
-      console.error("Error saving performance: ", error);
-      toast({ title: 'Erreur de sauvegarde', description: "Une erreur est survenue.", variant: 'destructive' });
-    } finally {
-      setIsSaving(false);
-    }
+    toast({ title: 'Performance sauvegardée !', description: 'Votre enregistrement a été ajouté à "Mes Créations".' });
+    setIsSaveAlertOpen(false);
+    setPerformanceTitle('');
+    handleReset();
   }
 
   const renderButtons = () => {
@@ -240,12 +229,12 @@ export default function StagePage() {
           </AlertDialogHeader>
           <div className="space-y-2">
             <Label htmlFor="performance-title">Titre de la performance</Label>
-            <Input id="performance-title" value={performanceTitle} onChange={(e) => setPerformanceTitle(e.target.value)} placeholder="Ex: Mon premier slam..." disabled={isSaving}/>
+            <Input id="performance-title" value={performanceTitle} onChange={(e) => setPerformanceTitle(e.target.value)} placeholder="Ex: Mon premier slam..."/>
           </div>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setPerformanceTitle('')} disabled={isSaving}>Annuler</AlertDialogCancel>
-            <AlertDialogAction onClick={handleSave} disabled={isSaving}>
-              {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+            <AlertDialogCancel onClick={() => setPerformanceTitle('')}>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={handleSave}>
+              <Save className="mr-2 h-4 w-4" />
               Sauvegarder
             </AlertDialogAction>
           </AlertDialogFooter>

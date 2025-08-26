@@ -15,7 +15,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
-import { Button } from '../ui/button';
+import { useAuth } from './user-gate';
 
 const menuItems = [
   { href: '/', label: 'Tableau de bord', icon: LayoutDashboard },
@@ -31,10 +31,11 @@ const menuItems = [
 export function AppSidebar() {
   const pathname = usePathname();
   const { state } = useSidebar();
+  const { logout } = useAuth();
   const router = useRouter();
 
   const handleLogout = () => {
-    localStorage.removeItem('plume-sonore-user');
+    logout();
     router.push('/login');
   };
 

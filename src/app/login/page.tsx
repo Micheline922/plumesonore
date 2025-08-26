@@ -7,21 +7,20 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Feather, Loader2 } from 'lucide-react';
+import { Feather } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { auth } from '@/lib/firebase';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { useAuth } from '@/components/app/user-gate';
 
 export default function LoginPage() {
   const [artistName, setArtistName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLogin, setIsLogin] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
+  const { login } = useAuth();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password || (!isLogin && !artistName)) {
       toast({
@@ -40,37 +39,12 @@ export default function LoginPage() {
         return;
     }
 
-    setIsLoading(true);
-
-    try {
-      if (isLogin) {
-        await signInWithEmailAndPassword(auth, email, password);
-        toast({ title: `Bienvenue de retour !` });
-      } else {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        await updateProfile(userCredential.user, { displayName: artistName });
-        toast({ title: 'Compte créé avec succès !', description: 'Bienvenue sur Plume Sonore.' });
-      }
-      router.push('/');
-    } catch (error: any) {
-      console.error(error);
-      const errorCode = error.code;
-      let errorMessage = "Une erreur est survenue.";
-      if (errorCode === 'auth/user-not-found' || errorCode === 'auth/wrong-password') {
-        errorMessage = 'Email ou mot de passe incorrect.';
-      } else if (errorCode === 'auth/email-already-in-use') {
-        errorMessage = 'Cette adresse e-mail est déjà utilisée.';
-      } else if (errorCode === 'auth/weak-password') {
-        errorMessage = 'Le mot de passe doit contenir au moins 6 caractères.';
-      }
-       toast({
-        title: 'Erreur',
-        description: errorMessage,
-        variant: 'destructive',
-      });
-    } finally {
-        setIsLoading(false);
-    }
+    login({ artistName, email });
+    toast({
+      title: isLogin ? `Bienvenue de retour, ${email} !` : 'Compte créé avec succès !',
+      description: isLogin ? 'Vous êtes maintenant connecté.' : 'Bienvenue sur Plume Sonore.',
+    });
+    router.push('/');
   };
 
   return (
@@ -98,7 +72,6 @@ export default function LoginPage() {
                   value={artistName}
                   onChange={(e) => setArtistName(e.target.value)}
                   required={!isLogin}
-                  disabled={isLoading}
                 />
               </div>
             )}
@@ -111,7 +84,6 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                disabled={isLoading}
               />
             </div>
             <div className="space-y-2">
@@ -123,16 +95,15 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                disabled={isLoading}
               />
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? <Loader2 className="animate-spin"/> : (isLogin ? "Entrer dans le studio" : "Créer mon compte")}
+            <Button type="submit" className="w-full">
+              {isLogin ? "Entrer dans le studio" : "Créer mon compte"}
             </Button>
           </form>
         </CardContent>
         <div className="p-6 pt-0 text-center text-sm">
-            <Button variant="link" onClick={() => setIsLogin(!isLogin)} disabled={isLoading}>
+            <Button variant="link" onClick={() => setIsLogin(!isLogin)}>
                 {isLogin ? "Pas de compte ? Créez-en un." : "Déjà un compte ? Connectez-vous."}
             </Button>
         </div>

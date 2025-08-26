@@ -1,56 +1,62 @@
 
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Save, Loader2, ArrowLeft } from 'lucide-react';
+import { Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/components/app/user-gate';
-import { db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp, doc, getDoc, updateDoc } from 'firebase/firestore';
 
-function WritingPadEditor() {
+interface Creation {
+  id: number;
+  title: string;
+  content: string;
+  type: 'text';
+  date: string;
+}
+
+export default function WritingPadPage() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [isFetching, setIsFetching] = useState(true);
-  const [creationId, setCreationId] = useState<string | null>(null);
+  const [creations, setCreations] = useState<Creation[]>([]);
+  const [currentCreationId, setCurrentCreationId] = useState<number | null>(null);
 
   const { user } = useAuth();
   const { toast } = useToast();
   const searchParams = useSearchParams();
-  const router = useRouter();
   
-  useEffect(() => {
-    const id = searchParams.get('id');
-    if (id && user) {
-        setIsFetching(true);
-        const getCreation = async () => {
-            const docRef = doc(db, 'creations', id);
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists() && docSnap.data().authorId === user.uid) {
-                const data = docSnap.data();
-                setTitle(data.title);
-                setContent(data.content);
-                setCreationId(id);
-            } else {
-                toast({ title: "Erreur", description: "Création non trouvée ou accès non autorisé.", variant: "destructive"});
-                router.push('/my-creations');
-            }
-            setIsFetching(false);
-        };
-        getCreation();
-    } else {
-        setIsFetching(false);
-    }
-  }, [searchParams, user, router, toast]);
+  const getStorageKey = useCallback(() => {
+    if (!user) return null;
+    return `plume-sonore-creations-${user.email}`;
+  }, [user]);
 
-  const handleSave = async () => {
+  useEffect(() => {
+    const storageKey = getStorageKey();
+    if (storageKey) {
+        const storedCreations = localStorage.getItem(storageKey);
+        const loadedCreations = storedCreations ? JSON.parse(storedCreations) : [];
+        setCreations(loadedCreations);
+        
+        const idParam = searchParams.get('id');
+        if (idParam) {
+            const creationToEdit = loadedCreations.find((c: Creation) => c.id === parseInt(idParam, 10));
+            if (creationToEdit) {
+                setTitle(creationToEdit.title);
+                setContent(creationToEdit.content);
+                setCurrentCreationId(creationToEdit.id);
+            }
+        }
+    } else {
+        setCreations([]);
+    }
+  }, [searchParams, getStorageKey]);
+
+  const handleSave = () => {
     if (!title && !content) {
       toast({
         title: 'Contenu vide',
@@ -59,73 +65,46 @@ function WritingPadEditor() {
       });
       return;
     }
-    if (!user) {
-       toast({ title: 'Non connecté', description: 'Vous devez être connecté.', variant: 'destructive' });
-      return;
+    
+    let updatedCreations = [...creations];
+
+    if (currentCreationId) {
+      // Update existing creation
+      updatedCreations = creations.map(c => 
+        c.id === currentCreationId ? { ...c, title, content, date: new Date().toISOString() } : c
+      );
+    } else {
+      // Create new creation
+      const newCreation: Creation = {
+        id: Date.now(),
+        title: title || 'Sans titre',
+        content,
+        type: 'text',
+        date: new Date().toISOString(),
+      };
+      updatedCreations = [newCreation, ...creations];
     }
     
-    setIsLoading(true);
-
-    try {
-        if(creationId) {
-            // Update existing document
-            const docRef = doc(db, 'creations', creationId);
-            await updateDoc(docRef, {
-                title,
-                content,
-                updatedAt: serverTimestamp(),
-            });
-            toast({ title: 'Modifications enregistrées !' });
-        } else {
-            // Create new document
-            const docData = {
-                authorId: user.uid,
-                authorName: user.displayName,
-                title: title || 'Sans titre',
-                content,
-                type: 'text',
-                status: 'draft',
-                createdAt: serverTimestamp(),
-                updatedAt: serverTimestamp(),
-                likes: 0,
-                likedBy: [],
-                comments: [],
-            };
-            const docRef = await addDoc(collection(db, 'creations'), docData);
-            setCreationId(docRef.id);
-            toast({ title: 'Sauvegardé !', description: 'Votre création a été ajoutée à votre bibliothèque.' });
-            router.push(`/writing-pad?id=${docRef.id}`, { scroll: false });
-        }
-    } catch(error) {
-        console.error("Error saving creation: ", error);
-        toast({ title: 'Erreur', description: 'Une erreur est survenue.', variant: 'destructive' });
-    } finally {
-        setIsLoading(false);
+    setCreations(updatedCreations);
+    const storageKey = getStorageKey();
+    if(storageKey) {
+        localStorage.setItem(storageKey, JSON.stringify(updatedCreations));
     }
+    
+    toast({
+      title: 'Sauvegardé !',
+      description: 'Votre création a été ajoutée à votre bibliothèque.',
+    });
   };
 
-  if (isFetching) {
-      return (
-          <div className='flex items-center justify-center p-8'>
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
-      )
-  }
-
   return (
+    <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <Card>
         <CardHeader>
-            <div className='flex items-center gap-4'>
-                <Button variant="outline" size="icon" onClick={() => router.push('/my-creations')}>
-                    <ArrowLeft className="h-4 w-4" />
-                </Button>
-                <div>
-                    <CardTitle className="font-headline text-2xl">{creationId ? 'Modifier la création' : "Atelier d'écriture"}</CardTitle>
-                    <CardDescription>
-                        C'est ici que la magie opère. Écrivez sans distraction.
-                    </CardDescription>
-                </div>
-            </div>
+          <CardTitle className="font-headline text-2xl">Atelier d'écriture</CardTitle>
+          <CardDescription>
+            C'est ici que la magie opère. Écrivez sans distraction.
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -135,7 +114,6 @@ function WritingPadEditor() {
               placeholder="Le titre de votre œuvre..." 
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              disabled={isLoading}
             />
           </div>
           <div className="space-y-2">
@@ -146,27 +124,16 @@ function WritingPadEditor() {
               className="min-h-[40vh] text-base font-serif"
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              disabled={isLoading}
             />
           </div>
         </CardContent>
         <CardFooter>
-          <Button onClick={handleSave} disabled={isLoading}>
-            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+          <Button onClick={handleSave}>
+            <Save className="mr-2 h-4 w-4" />
             Sauvegarder
           </Button>
         </CardFooter>
       </Card>
+    </main>
   );
-}
-
-
-export default function WritingPadPage() {
-    return (
-        <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-            <Suspense fallback={<div>Chargement...</div>}>
-                <WritingPadEditor />
-            </Suspense>
-        </main>
-    )
 }
