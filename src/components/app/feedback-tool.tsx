@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -9,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { getFeedbackOnText, type GetFeedbackOnTextOutput } from '@/ai/flows/get-feedback-on-text';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Sparkles } from 'lucide-react';
-import { Separator } from '../ui/separator';
+import { Separator } from '@/components/ui/separator';
 
 type WritingStyle = 'poetry' | 'slam' | 'rap' | 'article' | 'speech' | 'podcast';
 type Language = 'french' | 'english';
