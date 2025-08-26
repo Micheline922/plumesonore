@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, Sparkles } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
+
 type WritingStyle = 'poetry' | 'slam' | 'rap' | 'article' | 'speech' | 'podcast';
 type Language = 'french' | 'english';
 
