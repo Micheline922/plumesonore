@@ -49,7 +49,12 @@ interface ChatSession {
   [artistName: string]: ChatMessage[];
 }
 
-function NewPostForm({ onAddPost, currentUser }: { onAddPost: (text: string) => void; currentUser: { artistName: string } }) {
+interface User {
+    artistName: string;
+    email: string;
+}
+
+function NewPostForm({ onAddPost, currentUser }: { onAddPost: (text: string) => void; currentUser: User }) {
   const [postText, setPostText] = useState('');
   const { toast } = useToast();
 
@@ -94,20 +99,22 @@ function NewPostForm({ onAddPost, currentUser }: { onAddPost: (text: string) => 
   );
 }
 
-function ContactDialog({ author, currentUser }: { author: string; currentUser: { artistName: string } }) {
+function ContactDialog({ author, currentUser }: { author: string; currentUser: User }) {
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
+  const getChatStorageKey = () => `plume-sonore-chats-${currentUser.email}`;
+
   useEffect(() => {
-    if (isOpen) {
-      const allChatsRaw = localStorage.getItem('plume-sonore-chats');
+    if (isOpen && currentUser.email) {
+      const allChatsRaw = localStorage.getItem(getChatStorageKey());
       const allChats: ChatSession = allChatsRaw ? JSON.parse(allChatsRaw) : {};
       setChatHistory(allChats[author] || []);
     }
-  }, [isOpen, author]);
+  }, [isOpen, author, currentUser.email]);
 
   const handleSendMessage = async () => {
     if (!message.trim()) return;
@@ -130,10 +137,10 @@ function ContactDialog({ author, currentUser }: { author: string; currentUser: {
       setChatHistory(finalChatHistory);
 
       // Save to localStorage
-      const allChatsRaw = localStorage.getItem('plume-sonore-chats');
+      const allChatsRaw = localStorage.getItem(getChatStorageKey());
       const allChats: ChatSession = allChatsRaw ? JSON.parse(allChatsRaw) : {};
       allChats[author] = finalChatHistory;
-      localStorage.setItem('plume-sonore-chats', JSON.stringify(allChats));
+      localStorage.setItem(getChatStorageKey(), JSON.stringify(allChats));
 
     } catch (error) {
       console.error(error);
@@ -231,21 +238,32 @@ export default function CommunityPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [activeCommentSection, setActiveCommentSection] = useState<number | null>(null);
   const [commentText, setCommentText] = useState('');
-  const [currentUser, setCurrentUser] = useState({ artistName: 'Artiste Anonyme' });
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   
-  useEffect(() => {
-    const user = localStorage.getItem('plume-sonore-user');
-    if (user) {
-      setCurrentUser(JSON.parse(user));
-    }
+  const getPostStorageKey = () => currentUser ? `plume-sonore-posts-${currentUser.email}` : null;
 
-    const storedPosts = localStorage.getItem('plume-sonore-posts');
-    setPosts(storedPosts ? JSON.parse(storedPosts) : initialPosts);
+  useEffect(() => {
+    const userRaw = localStorage.getItem('plume-sonore-user');
+    if (userRaw) {
+      const user = JSON.parse(userRaw);
+      setCurrentUser(user);
+    }
   }, []);
+
+  useEffect(() => {
+    if(currentUser) {
+        const postStorageKey = getPostStorageKey();
+        const storedPosts = postStorageKey ? localStorage.getItem(postStorageKey) : null;
+        setPosts(storedPosts ? JSON.parse(storedPosts) : initialPosts);
+    }
+  }, [currentUser]);
 
   const updatePosts = (newPosts: Post[]) => {
     setPosts(newPosts);
-    localStorage.setItem('plume-sonore-posts', JSON.stringify(newPosts));
+    const postStorageKey = getPostStorageKey();
+    if(postStorageKey) {
+        localStorage.setItem(postStorageKey, JSON.stringify(newPosts));
+    }
   }
 
   const toggleLike = (id: number) => {
@@ -271,7 +289,7 @@ export default function CommunityPage() {
   };
 
   const handleAddComment = (id: number) => {
-    if (!commentText.trim()) return;
+    if (!commentText.trim() || !currentUser) return;
 
     const newPosts = posts.map((post) => {
         if (post.id === id) {
@@ -292,6 +310,8 @@ export default function CommunityPage() {
   };
 
   const handleAddPost = (text: string) => {
+    if (!currentUser) return;
+
     const newPost: Post = {
       id: Date.now(),
       author: currentUser.artistName,
@@ -306,6 +326,10 @@ export default function CommunityPage() {
     updatePosts([newPost, ...posts]);
   };
   
+  if (!currentUser) {
+      return null;
+  }
+
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <div className="flex items-center">

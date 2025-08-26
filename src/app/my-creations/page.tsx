@@ -26,23 +26,49 @@ interface Creation {
   date: string;
 }
 
+interface User {
+    artistName: string;
+    email: string;
+}
+
 export default function MyCreationsPage() {
   const [creations, setCreations] = useState<Creation[]>([]);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  const getCreationsStorageKey = () => currentUser ? `plume-sonore-creations-${currentUser.email}` : null;
 
   useEffect(() => {
-    // We sort creations by date, most recent first
-    const storedCreations = localStorage.getItem('plume-sonore-creations');
-    if (storedCreations) {
-      const parsedCreations = JSON.parse(storedCreations);
-      parsedCreations.sort((a: Creation, b: Creation) => new Date(b.date).getTime() - new Date(a.date).getTime());
-      setCreations(parsedCreations);
+    const userRaw = localStorage.getItem('plume-sonore-user');
+    if (userRaw) {
+      setCurrentUser(JSON.parse(userRaw));
     }
   }, []);
 
+  useEffect(() => {
+    if (currentUser) {
+      const storageKey = getCreationsStorageKey();
+      const storedCreations = storageKey ? localStorage.getItem(storageKey) : null;
+      if (storedCreations) {
+        const parsedCreations = JSON.parse(storedCreations);
+        parsedCreations.sort((a: Creation, b: Creation) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        setCreations(parsedCreations);
+      } else {
+        setCreations([]);
+      }
+    }
+  }, [currentUser]);
+
+  const updateCreations = (newCreations: Creation[]) => {
+      setCreations(newCreations);
+      const storageKey = getCreationsStorageKey();
+      if (storageKey) {
+          localStorage.setItem(storageKey, JSON.stringify(newCreations));
+      }
+  }
+
   const handleDelete = (id: number) => {
     const updatedCreations = creations.filter((c) => c.id !== id);
-    setCreations(updatedCreations);
-    localStorage.setItem('plume-sonore-creations', JSON.stringify(updatedCreations));
+    updateCreations(updatedCreations);
   };
 
   return (

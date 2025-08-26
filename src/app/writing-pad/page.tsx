@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -17,16 +17,38 @@ interface Creation {
     date: string;
 }
 
+interface User {
+    artistName: string;
+    email: string;
+}
+
 export default function WritingPadPage() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const userRaw = localStorage.getItem('plume-sonore-user');
+    if (userRaw) {
+      setCurrentUser(JSON.parse(userRaw));
+    }
+  }, []);
 
   const handleSave = () => {
     if (!title || !content) {
       toast({
         title: 'Champs manquants',
         description: "Veuillez donner un titre et un contenu à votre création.",
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!currentUser) {
+       toast({
+        title: 'Utilisateur non connecté',
+        description: 'Impossible de sauvegarder sans être connecté.',
         variant: 'destructive',
       });
       return;
@@ -40,10 +62,11 @@ export default function WritingPadPage() {
       date: new Date().toISOString(),
     };
 
-    const existingCreationsRaw = localStorage.getItem('plume-sonore-creations');
+    const storageKey = `plume-sonore-creations-${currentUser.email}`;
+    const existingCreationsRaw = localStorage.getItem(storageKey);
     const existingCreations: Creation[] = existingCreationsRaw ? JSON.parse(existingCreationsRaw) : [];
     
-    localStorage.setItem('plume-sonore-creations', JSON.stringify([newCreation, ...existingCreations]));
+    localStorage.setItem(storageKey, JSON.stringify([newCreation, ...existingCreations]));
 
     toast({
         title: 'Sauvegardé !',
