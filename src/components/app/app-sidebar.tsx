@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { usePathname } from 'next/navigation';
-import { Feather, GraduationCap, LayoutDashboard, Lightbulb, Mic, NotebookPen, Sparkles, Users, LogOut, Library } from 'lucide-react';
+import { Feather, GraduationCap, LayoutDashboard, Lightbulb, Mic, NotebookPen, Sparkles, Users, LogOut, Library, Edit } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -90,6 +90,10 @@ export function AppSidebar() {
               </SidebarMenuButton>
            </SidebarMenuItem>
          </SidebarMenu>
+         <div className={cn("flex items-center justify-center gap-2 p-4 text-xs text-sidebar-foreground/60", state === 'collapsed' && 'hidden')}>
+            <Edit className="h-4 w-4" />
+            <span>Conçu par Micheline Ntale</span>
+         </div>
       </SidebarFooter>
     </Sidebar>
   );
