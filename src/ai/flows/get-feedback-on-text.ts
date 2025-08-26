@@ -4,7 +4,7 @@
  *
  * - getFeedbackOnText - A function that handles the text feedback process.
  * - GetFeedbackOnTextInput - The input type for the getFeedbackOnText function.
- * - GetFeedbackOnTextOutput - The return type for the getFeedbackOnText function.
+ * - GetFeedbackOnTextOutput - The return type for the getFeedbackOntext function.
  */
 
 import {ai} from '@/ai/genkit';
@@ -12,7 +12,7 @@ import {z} from 'genkit';
 
 const GetFeedbackOnTextInputSchema = z.object({
   text: z.string().describe('The text to get feedback on.'),
-  writingStyle: z.enum(['poetry', 'slam', 'rap', 'article', 'speech', 'podcast']).describe('The writing style of the text.'),
+  writingStyle: z.enum(['poetry', 'slam', 'rap']).describe('The writing style of the text.'),
   language: z.enum(['french', 'english']).default('french').describe('The language for the feedback.'),
 });
 export type GetFeedbackOnTextInput = z.infer<typeof GetFeedbackOnTextInputSchema>;
@@ -37,9 +37,6 @@ const prompt = ai.definePrompt({
 You will receive a text written in a specific style. Your feedback must be tailored to that style.
 
 - For poetry, slam, or rap: focus on rhyme, rhythm, flow, and stylistic devices.
-- For an article: focus on clarity, structure, argumentation, and the strength of the introduction/conclusion.
-- For a speech: focus on rhetorical impact, clarity of the message, audience engagement, and the power of the oratory style.
-- For a podcast script: focus on narrative flow, clarity for an oral format, engagement, and the tone of the host.
 
 Text Style: {{{writingStyle}}}
 Text: {{{text}}}
