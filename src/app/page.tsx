@@ -55,13 +55,20 @@ const featureCards = [
 
 export default function DashboardPage() {
   const [showTour, setShowTour] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    const tourCompleted = localStorage.getItem('plume-sonore-tour-completed');
-    if (!tourCompleted) {
-      setShowTour(true);
-    }
+    setIsClient(true);
   }, []);
+
+  useEffect(() => {
+    if (isClient) {
+      const tourCompleted = localStorage.getItem('plume-sonore-tour-completed');
+      if (!tourCompleted) {
+        setShowTour(true);
+      }
+    }
+  }, [isClient]);
 
   const handleTourComplete = () => {
     localStorage.setItem('plume-sonore-tour-completed', 'true');
@@ -71,7 +78,7 @@ export default function DashboardPage() {
 
   return (
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-        <WelcomeTour open={showTour} onOpenChange={setShowTour} onFinish={handleTourComplete} />
+        {isClient && <WelcomeTour open={showTour} onOpenChange={setShowTour} onFinish={handleTourComplete} />}
         <div className="flex items-center">
           <div>
             <h1 className="font-headline text-3xl font-bold tracking-tight">Bienvenue, Artiste !</h1>
