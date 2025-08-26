@@ -100,7 +100,7 @@ export default function FeedbackTool() {
                 >
                   <SelectTrigger id="language">
                     <SelectValue placeholder="Langue" />
-                  </Trigger>
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="french">Français</SelectItem>
                     <SelectItem value="english">Anglais</SelectItem>
